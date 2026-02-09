@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FX CORE AUTO</title>
+
+<style>
+body{
+  margin:0;
+  background:#111;
+  color:#00ffc3;
+  font-family:monospace;
+  text-align:center;
+}
+.container{
+  padding:20px;
+}
+h1{
+  margin-top:10px;
+}
+.box{
+  border:2px solid #00ffc3;
+  padding:15px;
+  margin:15px 0;
+}
+input{
+  width:90px;
+  padding:5px;
+  background:#000;
+  border:1px solid #00ffc3;
+  color:#00ffc3;
+  text-align:center;
+}
+button{
+  margin-top:20px;
+  padding:12px 25px;
+  background:#111;
+  border:2px solid #ff004c;
+  color:#ff004c;
+  font-size:16px;
+}
+button:hover{
+  background:#ff004c;
+  color:#111;
+}
+.small{
+  font-size:12px;
+  margin-top:20px;
+  color:#888;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1>FX CORE AUTO</h1>
+
+<div class="box">
+BUY SIZE <input id="buy" type="number">
+SELL SIZE <input id="sell" type="number">
+</div>
+
+<div class="box">ENV: <span id="env">--</span></div>
+<div class="box">DIR: <span id="dir">--</span></div>
+<div class="box">RSI SIGNAL: <span id="rsisig">--</span></div>
+<div class="box">ORDER: <span id="order">--</span></div>
+
+<button onclick="analyze()">AUTO ANALYZE</button>
+
+<div class="small">
+※ 市場データ自動取得 / 壁は手入力
+</div>
+
+</div>
+
+<script>
+
+// ===== Yahoo取得 =====
+async function fetchYahoo(symbol){
+  const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbol}`;
+  const response = await fetch(url);
+  const data = await response.json();
+  return data.quoteResponse.result[0];
+}
+
+// ===== 簡易RSI計算 =====
+async function calculateRSI(symbol, period=14){
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=1mo&interval=1d`;
+  const response = await fetch(url);
+  const data = await response.json();
+  const closes = data.chart.result[0].indicators.quote[0].close;
+
+  let gains = 0;
+  let losses = 0;
+
+  for(let i=closes.length-period; i<closes.length; i++){
+    let diff = closes[i] - closes[i-1];
+    if(diff > 0) gains += diff;
+    if(diff < 0) losses += Math.abs(diff);
+  }
+
+  let avgGain = gains / period;
+  let avgLoss = losses / period;
+
+  if(avgLoss === 0) return 100;
+
+  let rs = avgGain / avgLoss;
+  return 100 - (100 / (1 + rs));
+}
+
+// ===== 分析 =====
+async function analyze(){
+
+  let buy = parseFloat(document.getElementById("buy").value) || 0;
+  let sell = parseFloat(document.getElementById("sell").value) || 0;
+
+  let spData  = await fetchYahoo("^GSPC");
+  let vixData = await fetchYahoo("^VIX");
+  let tltData = await fetchYahoo("TLT");
+  let dxyData = await fetchYahoo("DX-Y.NYB");
+
+  let sp  = spData.regularMarketChangePercent;
+  let vix = vixData.regularMarketChangePercent;
+  let tlt = tltData.regularMarketChangePercent;
+  let dxy = dxyData.regularMarketChangePercent;
+
+  let rsi = await calculateRSI("^GSPC");
+
+  // ===== ENV =====
+  let env = "NEUTRAL";
+  if(sp > 0 && vix < 0) env = "RISK ON";
+  if(sp < 0 && vix > 0) env = "RISK OFF";
+
+  // ===== DIR =====
+  let dir = "RANGE";
+  if(dxy > 0 && tlt < 0) dir = "USD STRONG";
+  if(dxy < 0 && tlt > 0) dir = "USD WEAK";
+
+  // ===== RSI判定 =====
+  let rsiSignal = "NORMAL";
+  if(rsi < 30) rsiSignal = "OVERSOLD";
+  if(rsi > 70) rsiSignal = "OVERBOUGHT";
+
+  // ===== ORDER SCORE =====
+  let orderScore = 0;
+  let orderBias = "BALANCE";
+
+  if(buy >= sell * 2){
+    orderScore = 3;
+    orderBias = "BUY DOMINANT";
+  } else if(sell >= buy * 2){
+    orderScore = 3;
+    orderBias = "SELL DOMINANT";
+  } else if(buy > sell){
+    orderScore = 1;
+    orderBias = "BUY DOMINANT";
+  } else if(sell > buy){
+    orderScore = 1;
+    orderBias = "SELL DOMINANT";
+  }
+
+  // ===== MODE =====
+  let mode = "COUNTER";
+  if(orderScore >= 2) mode = "TREND";
+
+  let order = "NO TRADE";
+
+  if(mode === "COUNTER"){
+    if(env === "RISK OFF" && rsiSignal === "OVERSOLD"){
+      order = "LONG";
+    }
+    if(env === "RISK ON" && rsiSignal === "OVERBOUGHT"){
+      order = "SHORT";
+    }
+  }
+
+  if(mode === "TREND"){
+    if(env === "RISK ON" && dir === "USD STRONG"){
+      order = "LONG";
+    }
+    if(env === "RISK OFF" && dir === "USD WEAK"){
+      order = "SHORT";
+    }
+  }
+
+  document.getElementById("env").innerText = env;
+  document.getElementById("dir").innerText = dir;
+  document.getElementById("rsisig").innerText = rsiSignal;
+  document.getElementById("order").innerText = order + " (" + mode + ")";
+}
+
+</script>
+</body>
+</html>
