@@ -1,104 +1,125 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8">
 <title>FX CORE AUTO</title>
-
 <style>
 body {
-  background: black;
-  color: #00ffcc;
-  font-family: monospace;
-  text-align: center;
+  background:black;
+  color:#00ffc3;
+  font-family:monospace;
+  text-align:center;
+}
+
+h1 {
+  margin-top:30px;
 }
 
 .box {
-  border: 2px solid #00ffcc;
-  margin: 20px;
-  padding: 20px;
+  border:2px solid #00ffc3;
+  margin:15px auto;
+  padding:15px;
+  width:90%;
+  max-width:500px;
+}
+
+input {
+  width:80px;
+  text-align:center;
 }
 
 button {
-  background: hotpink;
-  color: black;
-  padding: 15px 40px;
-  border: none;
-  font-weight: bold;
-  cursor: pointer;
+  background:#ff3b7f;
+  color:black;
+  padding:10px 30px;
+  border:none;
+  margin-top:20px;
+  font-weight:bold;
+  cursor:pointer;
 }
 </style>
 </head>
-
 <body>
 
 <h1>FX CORE AUTO</h1>
 
 <div class="box">
-  BUY SIZE <input id="buy" />
-  SELL SIZE <input id="sell" />
+  BUY SIZE <input id="buySize" value="100">
+  SELL SIZE <input id="sellSize" value="250">
 </div>
 
-<div class="box">ENV: <span id="env">--</span></div>
-<div class="box">DIR: <span id="dir">--</span></div>
-<div class="box">RSI SIGNAL: <span id="rsi">--</span></div>
-<div class="box">ORDER: <span id="order">--</span></div>
+<div class="box">
+  USDJPY: <span id="usdPrice">--</span>
+</div>
+
+<div class="box">
+  CHANGE: <span id="usdChange">--</span>
+</div>
+
+<div class="box">
+  ENV: <span id="env">--</span>
+</div>
+
+<div class="box">
+  DIR: <span id="dir">--</span>
+</div>
+
+<div class="box">
+  RSI SIGNAL: <span id="rsiSignal">--</span>
+</div>
+
+<div class="box">
+  ORDER: <span id="order">--</span>
+</div>
 
 <button onclick="autoAnalyze()">AUTO ANALYZE</button>
 
 <script>
-
 async function autoAnalyze() {
   try {
-    const res = await fetch("/api/market");
+    const res = await fetch('/api/market');
     const data = await res.json();
+
+    // USDJPY表示
+    document.getElementById("usdPrice").innerText = data.usdjpy.price;
+    document.getElementById("usdChange").innerText = data.usdjpy.change;
 
     analyze(data);
 
   } catch (e) {
-    console.log("API ERROR", e);
-    alert("API取得失敗");
+    console.error("Fetch error", e);
   }
 }
 
 function analyze(data) {
 
-  // デフォサイズ
-  document.getElementById("buy").value = 100;
-  document.getElementById("sell").value = 250;
-
-  // ===== ENV判定 =====
+  // ENV判定
   let env = "RANGE";
-
-  if (data.vix > 0.3) env = "RISK OFF";
-  if (data.sp > 0.3 && data.vix < 0) env = "RISK ON";
-
+  if (data.sp > 0.5) env = "RISK ON";
+  if (data.vix > 0.5) env = "RISK OFF";
   document.getElementById("env").innerText = env;
 
-  // ===== DIR判定 =====
+  // DIR判定
   let dir = "NEUTRAL";
-
-  if (data.sp > 0 && data.dxy < 0) dir = "LONG";
-  if (data.sp < 0 && data.dxy > 0) dir = "SHORT";
-
+  if (data.dxy > 0.3) dir = "USD STRONG";
+  if (data.dxy < -0.3) dir = "USD WEAK";
   document.getElementById("dir").innerText = dir;
 
-  // ===== RSI判定 =====
+  // RSI判定
   let rsiSignal = "NORMAL";
-
   if (data.rsi > 70) rsiSignal = "OVERBOUGHT";
   if (data.rsi < 30) rsiSignal = "OVERSOLD";
+  document.getElementById("rsiSignal").innerText = rsiSignal;
 
-  document.getElementById("rsi").innerText = rsiSignal;
-
-  // ===== ORDER判定 =====
+  // ORDER判定（シンプルロジック）
   let order = "NO TRADE";
-
-  if (env === "RISK ON" && dir === "LONG") order = "BUY";
-  if (env === "RISK OFF" && dir === "SHORT") order = "SELL";
+  if (env === "RISK ON" && dir === "USD WEAK" && rsiSignal === "OVERSOLD")
+    order = "BUY";
+  if (env === "RISK OFF" && dir === "USD STRONG" && rsiSignal === "OVERBOUGHT")
+    order = "SELL";
 
   document.getElementById("order").innerText = order;
 }
-
 </script>
 
 </body>
