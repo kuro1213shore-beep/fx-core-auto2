@@ -1,78 +1,67 @@
 export default async function handler(req, res) {
+
+  const API_KEY = process.env.TWELVEDATA_API_KEY;
+
   try {
-    const apikey = process.env.TWELVEDATA_API_KEY;
 
-    if (!apikey) {
-      return res.status(500).json({ error: "API key not set" });
-    }
-
-    // 価格取得
-    const priceRes = await fetch(
-      `https://api.twelvedata.com/price?symbol=USD/JPY&apikey=${apikey}`
+    // ===== USDJPY 取得 =====
+    const usdRes = await fetch(
+      `https://api.twelvedata.com/time_series?symbol=USD/JPY&interval=5min&outputsize=100&apikey=${API_KEY}`
     );
-    const priceData = await priceRes.json();
+    const usdData = await usdRes.json();
 
-    if (!priceData.price) {
-      return res.status(500).json({ error: "Price fetch failed" });
+    const prices = usdData.values.map(v => parseFloat(v.close)).reverse();
+    const latestPrice = prices[prices.length - 1];
+    const prevPrice = prices[prices.length - 2];
+    const change = ((latestPrice - prevPrice) / prevPrice) * 100;
+
+    // ===== RSI計算 =====
+    function calculateRSI(prices, period = 14) {
+      let gains = 0;
+      let losses = 0;
+
+      for (let i = prices.length - period; i < prices.length - 1; i++) {
+        let diff = prices[i + 1] - prices[i];
+        if (diff > 0) gains += diff;
+        else losses -= diff;
+      }
+
+      let avgGain = gains / period;
+      let avgLoss = losses / period;
+      let rs = avgGain / avgLoss;
+
+      return 100 - (100 / (1 + rs));
     }
 
-    // 15分足データ取得（RSI用）
-    const rsiRes = await fetch(
-      `https://api.twelvedata.com/time_series?symbol=USD/JPY&interval=15min&outputsize=100&apikey=${apikey}`
+    const rsi = calculateRSI(prices);
+
+    // ===== US10Y 金利取得 =====
+    const yieldRes = await fetch(
+      `https://api.twelvedata.com/quote?symbol=US10Y&apikey=${API_KEY}`
     );
-    const rsiData = await rsiRes.json();
+    const yieldData = await yieldRes.json();
 
-    if (!rsiData.values) {
-      return res.status(500).json({ error: "RSI data fetch failed" });
-    }
+    const us10y = parseFloat(yieldData.percent_change);
 
-    const closes = rsiData.values
-      .map(c => parseFloat(c.close))
-      .reverse();
-
-    const rsi = calculateRSI(closes, 14);
+    // ===== ダミー指数（あとで本物に変えられる） =====
+    const sp = 0;
+    const vix = 0;
+    const dxy = 0;
 
     res.status(200).json({
       usdjpy: {
-        price: parseFloat(priceData.price),
-        change: 0,
+        price: latestPrice,
+        change: change,
         rsi: rsi
       },
-      sp: 0.3,
-      vix: -0.2,
-      dxy: 0.2
+      us10y: us10y,
+      sp: sp,
+      vix: vix,
+      dxy: dxy
     });
 
-  } catch (e) {
-    res.status(500).json({ error: "fetch failed" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "API error" });
   }
-}
-
-function calculateRSI(closes, period) {
-  let gains = 0;
-  let losses = 0;
-
-  for (let i = 1; i <= period; i++) {
-    const diff = closes[i] - closes[i - 1];
-    if (diff >= 0) gains += diff;
-    else losses -= diff;
-  }
-
-  let avgGain = gains / period;
-  let avgLoss = losses / period;
-
-  for (let i = period + 1; i < closes.length; i++) {
-    const diff = closes[i] - closes[i - 1];
-
-    if (diff >= 0) {
-      avgGain = (avgGain * (period - 1) + diff) / period;
-      avgLoss = (avgLoss * (period - 1)) / period;
-    } else {
-      avgGain = (avgGain * (period - 1)) / period;
-      avgLoss = (avgLoss * (period - 1) - diff) / period;
-    }
-  }
-
-  const rs = avgGain / avgLoss;
-  return parseFloat((100 - 100 / (1 + rs)).toFixed(2));
 }
