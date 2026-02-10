@@ -127,8 +127,17 @@ import { analyzeLogic } from './engine.js';
 import { updateUI } from './ui.js';
 import { saveEntry } from './logs.js';
 
-function fmt(n){
-  return (typeof n === "number") ? n.toFixed(3) : "--";
+function analyze(data){
+
+  const { riskScore, usdScore, totalScore } = calcScore(data);
+
+  document.getElementById("riskScore").innerText = riskScore;
+  document.getElementById("usdScore").innerText = usdScore;
+  document.getElementById("totalScore").innerText = totalScore;
+
+  const result = analyzeLogic(data, riskScore, usdScore, totalScore);
+  updateUI(result);
+
 }
 
 async function autoAnalyze(){
