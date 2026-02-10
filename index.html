@@ -199,14 +199,14 @@ function analyze(data){
 }
 
 /* ===== THEME SWITCH ===== */
-function applyTheme(order){
+function applyTheme(mode){
 
   document.body.classList.remove("long-mode","short-mode","range-mode");
 
-  if(order.includes("LONG")){
+  if(mode === "UPTREND"){
     document.body.classList.add("long-mode");
   }
-  else if(order.includes("SHORT")){
+  else if(mode === "DOWNTREND"){
     document.body.classList.add("short-mode");
   }
   else{
