@@ -33,7 +33,7 @@ export default async function handler(req, res) {
       return j?.data?.[0]?.d || null;
     }
 
-    // ===== USDJPY =====
+    // ===== USDJPY PRICE =====
     const usd = await tvScan("forex", "FX:USDJPY");
     if (usd) {
       out.usdjpy.price = usd[0];
@@ -44,25 +44,27 @@ export default async function handler(req, res) {
     const sp  = await tvScan("america", "SP:SPX");
     const vix = await tvScan("america", "CBOE:VIX");
     const tlt = await tvScan("america", "NASDAQ:TLT");
-　　 const dxy = await tvScan("america", "TVC:DXY");
+    const dxy = await tvScan("america", "TVC:DXY");
 
     out.spPct  = sp  ? sp[1]  : null;
     out.vixPct = vix ? vix[1] : null;
     out.tltPct = tlt ? tlt[1] : null;
     out.dxyPct = dxy ? dxy[1] : null;
 
-    // ===== RSI（TwelveDataあれば使用）=====
+    // ===== TwelveData (RSI + 4H SMA200) =====
     const key = process.env.TWELVEDATA_API_KEY;
 
     if (key) {
-      const tdUrl =
+
+      // ---- RSI (15m) ----
+      const rsiUrl =
         `https://api.twelvedata.com/time_series?symbol=USD/JPY&interval=15min&outputsize=100&apikey=${key}`;
 
-      const r = await fetch(tdUrl);
-      const j = await r.json();
+      const rsiRes = await fetch(rsiUrl);
+      const rsiJson = await rsiRes.json();
 
-      if (Array.isArray(j.values)) {
-        const closes = j.values
+      if (Array.isArray(rsiJson.values)) {
+        const closes = rsiJson.values
           .slice()
           .reverse()
           .map(v => Number(v.close))
@@ -71,6 +73,40 @@ export default async function handler(req, res) {
         const rsi = calcRSI(closes, 14);
         if (Number.isFinite(rsi)) {
           out.usdjpy.rsi = rsi;
+        }
+      }
+
+      // ---- 4H SMA200 + 傾き ----
+      const smaUrl =
+        `https://api.twelvedata.com/time_series?symbol=USD/JPY&interval=4h&outputsize=300&apikey=${key}`;
+
+      const smaRes = await fetch(smaUrl);
+      const smaJson = await smaRes.json();
+
+      if (Array.isArray(smaJson.values)) {
+        const closes = smaJson.values
+          .slice()
+          .reverse()
+          .map(v => Number(v.close))
+          .filter(n => Number.isFinite(n));
+
+        if (closes.length >= 201) {
+          const smaNow  = calcSMA(closes.slice(-200));
+          const smaPrev = calcSMA(closes.slice(-201, -1));
+
+          out.usdjpy.sma200_4h = smaNow;
+          out.usdjpy.smaSlope4h = smaNow - smaPrev;
+
+          // トレンド判定（ここ超重要）
+          if (out.usdjpy.smaSlope4h > 0.03) {
+            out.usdjpy.marketMode = "UPTREND";
+          }
+          else if (out.usdjpy.smaSlope4h < -0.03) {
+            out.usdjpy.marketMode = "DOWNTREND";
+          }
+          else {
+            out.usdjpy.marketMode = "RANGE";
+          }
         }
       }
     }
@@ -113,4 +149,10 @@ function calcRSI(closes, period = 14) {
 
   const rs = avgGain / avgLoss;
   return 100 - (100 / (1 + rs));
+}
+
+
+// ===== SMA =====
+function calcSMA(arr) {
+  return arr.reduce((a,b)=>a+b,0) / arr.length;
 }
