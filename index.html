@@ -1,175 +1,65 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>FX CORE AUTO</title>
-
-<style>
-:root{
-  --c:#00ffc3;
-  --bg:#000;
-  --box:rgba(0,0,0,0.55);
-  --border:2px solid var(--c);
-  --danger:#ff3b7f;
-  --muted:rgba(0,255,195,0.55);
-}
-body{
-  margin:0;
-  background:var(--bg);
-  color:var(--c);
-  font-family:monospace;
-  text-align:center;
-}
-h1{ margin:26px 0 10px; font-size:28px; }
-.wrap{ width:92%; max-width:560px; margin:0 auto; }
-.box{
-  border:var(--border);
-  margin:12px auto;
-  padding:12px;
-  background:var(--box);
-  text-align:left;
-}
-.row{ display:flex; justify-content:space-between; }
-.sig{ font-weight:900; }
-.good{ color:#00ff7b; }
-.bad{ color:#ff3b7f; }
-.neutral{ color:#9aa; }
-button{
-  background:var(--danger);
-  color:#000;
-  padding:10px 25px;
-  border:none;
-  font-weight:bold;
-}
-</style>
-</head>
-
-<body>
-<h1>FX CORE AUTO</h1>
-<div class="wrap">
-
-<div class="box">
-<div class="row"><span>USDJPY</span><span id="usdPrice">--</span></div>
-<div class="row"><span>CHANGE</span><span id="usdChange">--</span></div>
-<div class="row"><span>RSI</span><span id="usdRsi">--</span></div>
-</div>
-
-<div class="box">
-<div class="row"><span>SPX</span><span id="sp">--</span></div>
-<div class="row"><span>VIX</span><span id="vix">--</span></div>
-<div class="row"><span>TLT</span><span id="tlt">--</span></div>
-<div class="row"><span>DXY</span><span id="dxy">--</span></div>
-</div>
-
-<div class="box">
-<div class="row"><span>ENV</span><span class="sig" id="env">--</span></div>
-<div class="row"><span>DIR</span><span class="sig" id="dir">--</span></div>
-<div class="row"><span>RSI SIGNAL</span><span class="sig" id="rsiSignal">--</span></div>
-<div class="row"><span>ORDER</span><span class="sig" id="order">--</span></div>
-</div>
-
-<div class="box">
-<div class="row"><span>RISK SCORE</span><span id="riskScore">--</span></div>
-<div class="row"><span>USD SCORE</span><span id="usdScore">--</span></div>
-<div class="row"><span>TOTAL SCORE</span><span id="totalScore">--</span></div>
-</div>
-
-<div class="box">
-<button onclick="autoAnalyze()">AUTO ANALYZE</button>
-</div>
-
-</div>
-
 <script>
-function fmt(n){ return (typeof n==="number")?n.toFixed(3):"--"; }
+
+function fmt(n){
+  return (typeof n==="number") ? n.toFixed(3) : "--";
+}
 
 async function autoAnalyze(){
-const res = await fetch('/api/market',{cache:"no-store"});
-const data = await res.json();
+  const res = await fetch('/api/market',{cache:"no-store"});
+  const data = await res.json();
 
-document.getElementById("usdPrice").innerText = fmt(data.usdjpy?.price);
-document.getElementById("usdChange").innerText = fmt(data.usdjpy?.change);
-document.getElementById("usdRsi").innerText = fmt(data.usdjpy?.rsi);
+  document.getElementById("usdPrice").innerText = fmt(data.usdjpy?.price);
+  document.getElementById("usdChange").innerText = fmt(data.usdjpy?.change);
+  document.getElementById("usdRsi").innerText = fmt(data.usdjpy?.rsi);
 
-document.getElementById("sp").innerText = fmt(data.spPct);
-document.getElementById("vix").innerText = fmt(data.vixPct);
-document.getElementById("tlt").innerText = fmt(data.tltPct);
-document.getElementById("dxy").innerText = fmt(data.dxyPct);
+  document.getElementById("sp").innerText = fmt(data.spPct);
+  document.getElementById("vix").innerText = fmt(data.vixPct);
+  document.getElementById("tlt").innerText = fmt(data.tltPct);
+  document.getElementById("dxy").innerText = fmt(data.dxyPct);
 
-analyze(data);
+  analyze(data);
 }
 
 function analyze(data){
 
-// ===== SCORE =====
-let riskScore = 0;
-if(data.spPct>0) riskScore++;
-if(data.spPct<0) riskScore--;
-if(data.vixPct<0) riskScore++;
-if(data.vixPct>0) riskScore--;
-if(data.tltPct<0) riskScore++;
-if(data.tltPct>0) riskScore--;
+  let riskScore=0;
+  if(data.spPct>0) riskScore++;
+  if(data.spPct<0) riskScore--;
+  if(data.vixPct<0) riskScore++;
+  if(data.vixPct>0) riskScore--;
+  if(data.tltPct<0) riskScore++;
+  if(data.tltPct>0) riskScore--;
 
-let usdScore = 0;
-if(data.dxyPct>0) usdScore++;
-if(data.dxyPct<0) usdScore--;
+  let usdScore=0;
+  if(data.dxyPct>0) usdScore++;
+  if(data.dxyPct<0) usdScore--;
 
-let totalScore = riskScore + usdScore;
+  let totalScore=riskScore+usdScore;
 
-document.getElementById("riskScore").innerText = riskScore;
-document.getElementById("usdScore").innerText = usdScore;
-document.getElementById("totalScore").innerText = totalScore;
+  document.getElementById("riskScore").innerText=riskScore;
+  document.getElementById("usdScore").innerText=usdScore;
+  document.getElementById("totalScore").innerText=totalScore;
 
-// ===== ENV =====
-let env="MIXED";
-if(riskScore>=2) env="RISK ON";
-if(riskScore<=-2) env="RISK OFF";
+  let env="MIXED";
+  if(riskScore>=2) env="RISK ON";
+  if(riskScore<=-2) env="RISK OFF";
 
-// ===== DIR =====
-let dir="NEUTRAL";
-if(usdScore>0) dir="USD STRONG";
-if(usdScore<0) dir="USD WEAK";
+  let dir="NEUTRAL";
+  if(usdScore>0) dir="USD STRONG";
+  if(usdScore<0) dir="USD WEAK";
 
-// ===== RSI =====
-let rsiSignal="NORMAL";
-if(data.usdjpy?.rsi>=70) rsiSignal="OVERBOUGHT";
-if(data.usdjpy?.rsi<=30) rsiSignal="OVERSOLD";
+  let rsiSignal="NORMAL";
+  if(data.usdjpy?.rsi>=70) rsiSignal="OVERBOUGHT";
+  if(data.usdjpy?.rsi<=30) rsiSignal="OVERSOLD";
 
-// ===== ORDER =====
-let order="NO TRADE";
-if(totalScore>=3 && rsiSignal==="NORMAL") order="LONG (trend)";
-if(totalScore<=-3 && rsiSignal==="NORMAL") order="SHORT (trend)";
-if(env==="RISK OFF" && rsiSignal==="OVERSOLD") order="LONG (counter)";
-if(env==="RISK ON" && rsiSignal==="OVERBOUGHT") order="SHORT (counter)";
+  let order="NO TRADE";
+  if(totalScore>=3 && rsiSignal==="NORMAL") order="LONG";
+  if(totalScore<=-3 && rsiSignal==="NORMAL") order="SHORT";
 
-document.getElementById("env").innerText = env;
-document.getElementById("dir").innerText = dir;
-document.getElementById("rsiSignal").innerText = rsiSignal;
-document.getElementById("order").innerText = order;
-}
-</script>
-
-<script>
-
-// ===== fetch layer =====
-async function fetchMarket(){
-  const res = await fetch('/api/market', { cache: "no-store" });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data?.error || "API error");
-  return data;
-}
-
-async function autoAnalyze(){
-  try{
-    const data = await fetchMarket();
-    console.log("DATA:", data);
-  }catch(e){
-    console.error(e);
-  }
+  document.getElementById("env").innerText=env;
+  document.getElementById("dir").innerText=dir;
+  document.getElementById("rsiSignal").innerText=rsiSignal;
+  document.getElementById("order").innerText=order;
 }
 
 </script>
-
-</body>
-</html>
