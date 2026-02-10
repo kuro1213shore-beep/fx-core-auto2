@@ -5,7 +5,7 @@ export function updateUI(result){
   document.getElementById("rsiSignal").innerText = result.rsiSignal;
   document.getElementById("order").innerText = result.order;
 
-  applyTheme(result.mode);
+  applyTheme(result.mode);  // ← orderじゃない
 }
 
 function applyTheme(mode){
