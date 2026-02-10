@@ -46,7 +46,7 @@ export default async function handler(req, res) {
     const sp = await tvScan("america", "SP:SPX", ["change"]);
     const vix = await tvScan("america", "CBOE:VIX", ["change"]);
     const tlt = await tvScan("america", "NASDAQ:TLT", ["change"]);
-    const dxy = await tvScan("indices", "TVC:DXY", ["change"]);
+    const dxy = await tvScan("america", "ICEUS:DXY", columns);
 
     out.spPct = sp ? sp[0] : null;
     out.vixPct = vix ? vix[0] : null;
