@@ -1,19 +1,21 @@
 export function updateUI(result){
-  document.getElementById("env").innerText=result.env;
-  document.getElementById("dir").innerText=result.dir;
-  document.getElementById("rsiSignal").innerText=result.rsiSignal;
-  document.getElementById("order").innerText=result.order;
 
-  applyTheme(result.order);
+  document.getElementById("env").innerText = result.env;
+  document.getElementById("dir").innerText = result.dir;
+  document.getElementById("rsiSignal").innerText = result.rsiSignal;
+  document.getElementById("order").innerText = result.order;
+
+  applyTheme(result.mode);
 }
 
-function applyTheme(order){
+function applyTheme(mode){
+
   document.body.classList.remove("long-mode","short-mode","range-mode");
 
-  if(order.includes("LONG")){
+  if(mode === "UPTREND"){
     document.body.classList.add("long-mode");
   }
-  else if(order.includes("SHORT")){
+  else if(mode === "DOWNTREND"){
     document.body.classList.add("short-mode");
   }
   else{
