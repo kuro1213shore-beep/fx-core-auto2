@@ -218,7 +218,9 @@ function analyze(data){
     env = "UNKNOWN";
     reasons.push("ENV no data");
   }
-
+<div class="box">RISK SCORE: <span id="riskScore">--</span></div>
+<div class="box">USD SCORE: <span id="usdScore">--</span></div>
+<div class="box">TOTAL SCORE: <span id="totalScore">--</span></div>
   // ===== DIR（ドルの方向） =====
   // DXY↑ かつ TLT↓（=金利↑） → USD STRONG
   // DXY↓ かつ TLT↑（=金利↓） → USD WEAK
@@ -248,6 +250,27 @@ function analyze(data){
   } else {
     rsiSignal = "UNKNOWN";
   }
+
+// ===== SCORE計算 =====
+let riskScore = 0;
+if (data.spPct > 0) riskScore++;
+if (data.spPct < 0) riskScore--;
+if (data.vixPct < 0) riskScore++;
+if (data.vixPct > 0) riskScore--;
+if (data.tltPct < 0) riskScore++;
+if (data.tltPct > 0) riskScore--;
+
+let usdScore = 0;
+if (data.dxyPct > 0) usdScore++;
+if (data.dxyPct < 0) usdScore--;
+if (data.us10y > 0) usdScore++;
+if (data.us10y < 0) usdScore--;
+
+let totalScore = riskScore + usdScore;
+
+document.getElementById("riskScore").innerText = riskScore;
+document.getElementById("usdScore").innerText = usdScore;
+document.getElementById("totalScore").innerText = totalScore;
 
   // ===== ORDER（最終） =====
   // 守り前提：逆張りの「やる/やらない」を強くする
