@@ -45,6 +45,7 @@ button{
   border:none;
   font-weight:bold;
   cursor:pointer;
+  margin:5px 0;
 }
 iframe{
   border:0;
@@ -59,12 +60,14 @@ iframe{
 <h1>FX CORE AUTO</h1>
 <div class="wrap">
 
+<!-- ===== PRICE ===== -->
 <div class="box">
   <div class="row"><span>USDJPY</span><span id="usdPrice">--</span></div>
   <div class="row"><span>CHANGE</span><span id="usdChange">--</span></div>
   <div class="row"><span>RSI</span><span id="usdRsi">--</span></div>
 </div>
 
+<!-- ===== MARKET ===== -->
 <div class="box">
   <div class="row"><span>SPX</span><span id="sp">--</span></div>
   <div class="row"><span>VIX</span><span id="vix">--</span></div>
@@ -72,14 +75,17 @@ iframe{
   <div class="row"><span>DXY</span><span id="dxy">--</span></div>
 </div>
 
+<!-- ===== SIGNAL ===== -->
 <div class="box">
   <div class="row"><span>ENV</span><span id="env">--</span></div>
   <div class="row"><span>DIR</span><span id="dir">--</span></div>
   <div class="row"><span>RSI SIGNAL</span><span id="rsiSignal">--</span></div>
   <div class="row"><span>ORDER</span><span id="order">--</span></div>
 </div>
+
 <button onclick="saveEntry()">SAVE ENTRY</button>
 
+<!-- ===== SCORE ===== -->
 <div class="box">
   <div class="row"><span>RISK SCORE</span><span id="riskScore">--</span></div>
   <div class="row"><span>USD SCORE</span><span id="usdScore">--</span></div>
@@ -90,17 +96,18 @@ iframe{
   <button onclick="autoAnalyze()">AUTO ANALYZE</button>
 </div>
 
-<!-- チャート分離 -->
+<!-- ===== CHART ===== -->
 <div class="box">
   <iframe src="chart.html"></iframe>
 </div>
 
 </div>
 
-<!-- ===== module対応 ===== -->
+<!-- ===== MODULE SCRIPT ===== -->
 <script type="module">
 
 import { calcScore } from './score.js';
+import { saveEntry } from './logs.js';
 
 function fmt(n){
   return (typeof n === "number") ? n.toFixed(3) : "--";
@@ -111,7 +118,6 @@ async function autoAnalyze(){
     const res = await fetch('/api/market',{cache:"no-store"});
     const data = await res.json();
 
-    // 表示
     document.getElementById("usdPrice").innerText = fmt(data.usdjpy?.price);
     document.getElementById("usdChange").innerText = fmt(data.usdjpy?.changePct);
     document.getElementById("usdRsi").innerText = fmt(data.usdjpy?.rsi);
@@ -137,24 +143,20 @@ function analyze(data){
   document.getElementById("usdScore").innerText = usdScore;
   document.getElementById("totalScore").innerText = totalScore;
 
-  // ENV
   let env="MIXED";
   if(riskScore>=2) env="RISK ON";
   if(riskScore<=-2) env="RISK OFF";
 
-  // DIR
   let dir="NEUTRAL";
   if(usdScore>0) dir="USD STRONG";
   if(usdScore<0) dir="USD WEAK";
 
-  // RSI
   let rsiSignal="NORMAL";
   let rsi=data.usdjpy?.rsi;
 
   if(rsi>=70) rsiSignal="OVERBOUGHT";
   if(rsi<=30) rsiSignal="OVERSOLD";
 
-  // ORDER
   let order="NO TRADE";
 
   if(totalScore>=3 && rsiSignal==="NORMAL"){
@@ -176,8 +178,8 @@ function analyze(data){
   document.getElementById("order").innerText=order;
 }
 
-// ボタン用
 window.autoAnalyze = autoAnalyze;
+window.saveEntry = saveEntry;
 
 </script>
 
