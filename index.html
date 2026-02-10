@@ -6,265 +6,114 @@
 <title>FX CORE AUTO</title>
 
 <style>
-  :root{
-    --c:#00ffc3;
-    --bg:#000;
-    --box:rgba(0,0,0,0.55);
-    --border:2px solid var(--c);
-    --danger:#ff3b7f;
-    --muted:rgba(0,255,195,0.55);
-  }
-  body{
-    margin:0;
-    background:var(--bg);
-    color:var(--c);
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
-    text-align:center;
-  }
-  h1{
-    margin:26px 0 10px;
-    font-size:28px;
-    letter-spacing:1px;
-  }
-  .wrap{
-    width:92%;
-    max-width:560px;
-    margin:0 auto;
-  }
-  .box{
-    border:var(--border);
-    margin:12px auto;
-    padding:12px 14px;
-    background:var(--box);
-    font-size:16px;
-    line-height:1.35;
-    text-align:left;
-  }
-  .row{
-    display:flex;
-    justify-content:space-between;
-    gap:10px;
-    align-items:center;
-  }
-  .k{ opacity:.85; }
-  .v{ font-weight:700; }
-  .muted{ color:var(--muted); font-size:13px; margin-top:6px; }
-  button{
-    background:var(--danger);
-    color:#000;
-    padding:11px 26px;
-    border:none;
-    margin:14px 0 8px;
-    font-weight:900;
-    cursor:pointer;
-    border-radius:8px;
-  }
-  .toggle{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:10px;
-    margin-top:4px;
-  }
-  input[type="checkbox"]{ transform:scale(1.2); }
-  .pill{
-    display:inline-block;
-    padding:4px 10px;
-    border:1px solid var(--muted);
-    border-radius:999px;
-    font-size:12px;
-    opacity:.9;
-  }
-  .sig{
-    font-size:18px;
-    font-weight:900;
-    letter-spacing:1px;
-  }
-  .good{ color:#00ff7b; }
-  .bad{ color:#ff3b7f; }
-  .neutral{ color:#9aa; }
-  iframe{ border:0; width:100%; height:420px; border-top:1px solid rgba(0,255,195,0.25); }
+:root{
+  --c:#00ffc3;
+  --bg:#000;
+  --box:rgba(0,0,0,0.55);
+  --border:2px solid var(--c);
+  --danger:#ff3b7f;
+  --muted:rgba(0,255,195,0.55);
+}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--c);
+  font-family:monospace;
+  text-align:center;
+}
+h1{ margin:26px 0 10px; font-size:28px; }
+.wrap{ width:92%; max-width:560px; margin:0 auto; }
+.box{
+  border:var(--border);
+  margin:12px auto;
+  padding:12px;
+  background:var(--box);
+  text-align:left;
+}
+.row{ display:flex; justify-content:space-between; }
+.sig{ font-weight:900; }
+.good{ color:#00ff7b; }
+.bad{ color:#ff3b7f; }
+.neutral{ color:#9aa; }
+button{
+  background:var(--danger);
+  color:#000;
+  padding:10px 25px;
+  border:none;
+  font-weight:bold;
+}
 </style>
 </head>
 
 <body>
-  <h1>FX CORE AUTO</h1>
+<h1>FX CORE AUTO</h1>
+<div class="wrap">
 
-  <div class="wrap">
+<div class="box">
+<div class="row"><span>USDJPY</span><span id="usdPrice">--</span></div>
+<div class="row"><span>CHANGE</span><span id="usdChange">--</span></div>
+<div class="row"><span>RSI</span><span id="usdRsi">--</span></div>
+</div>
 
-    <div class="box">
-      <div class="row"><span class="k">USDJPY</span><span class="v" id="usdPrice">--</span></div>
-      <div class="row"><span class="k">CHANGE</span><span class="v" id="usdChange">--</span></div>
-      <div class="row"><span class="k">RSI(14)</span><span class="v" id="usdRsi">--</span></div>
-      <div class="muted" id="usdMeta">--</div>
-    </div>
+<div class="box">
+<div class="row"><span>SPX</span><span id="sp">--</span></div>
+<div class="row"><span>VIX</span><span id="vix">--</span></div>
+<div class="row"><span>TLT</span><span id="tlt">--</span></div>
+<div class="row"><span>DXY</span><span id="dxy">--</span></div>
+</div>
 
-    <div class="box">
-      <div class="row"><span class="k">S&P500 (SPX)</span><span class="v" id="sp">--</span></div>
-      <div class="row"><span class="k">VIX</span><span class="v" id="vix">--</span></div>
-      <div class="row"><span class="k">TLT (Bond proxy)</span><span class="v" id="tlt">--</span></div>
-      <div class="row"><span class="k">DXY</span><span class="v" id="dxy">--</span></div>
-      <div class="muted" id="mktMeta">--</div>
-    </div>
+<div class="box">
+<div class="row"><span>ENV</span><span class="sig" id="env">--</span></div>
+<div class="row"><span>DIR</span><span class="sig" id="dir">--</span></div>
+<div class="row"><span>RSI SIGNAL</span><span class="sig" id="rsiSignal">--</span></div>
+<div class="row"><span>ORDER</span><span class="sig" id="order">--</span></div>
+</div>
 
-    <div class="box">
-      <div class="row"><span class="k">ENV</span><span class="v sig" id="env">--</span></div>
-      <div class="row"><span class="k">DIR</span><span class="v sig" id="dir">--</span></div>
-      <div class="row"><span class="k">RSI SIGNAL</span><span class="v sig" id="rsiSignal">--</span></div>
-      <div class="row"><span class="k">ORDER</span><span class="v sig" id="order">--</span></div>
-      <div class="muted" id="reason">--</div>
-    </div>
+<div class="box">
+<div class="row"><span>RISK SCORE</span><span id="riskScore">--</span></div>
+<div class="row"><span>USD SCORE</span><span id="usdScore">--</span></div>
+<div class="row"><span>TOTAL SCORE</span><span id="totalScore">--</span></div>
+</div>
 
-    <div class="box">
-      <div class="toggle">
-        <label class="row" style="gap:12px;">
-          <input type="checkbox" id="autoRefresh">
-          <span>Auto refresh <span class="pill">15s</span></span>
-        </label>
-        <span class="pill" id="status">Ready</span>
-      </div>
-      <button onclick="autoAnalyze()">AUTO ANALYZE</button>
-    </div>
+<div class="box">
+<button onclick="autoAnalyze()">AUTO ANALYZE</button>
+</div>
 
-    <div style="margin-top:26px;">
-      <iframe
-        src="https://s.tradingview.com/widgetembed/?symbol=FX:USDJPY&interval=15&hidesidetoolbar=1&theme=dark"
-        loading="lazy">
-      </iframe>
-    </div>
-
-  </div>
+</div>
 
 <script>
-let timer = null;
-
-function fmt(n, digits=2){
-  if (typeof n !== "number" || Number.isNaN(n)) return "--";
-  return n.toFixed(digits);
-}
-
-function colorize(el, change){
-  // 上昇=赤、下落=青
-  if (typeof change !== "number") {
-    el.classList.remove("good","bad","neutral");
-    el.classList.add("neutral");
-    return;
-  }
-  el.classList.remove("good","bad","neutral");
-  if (change > 0) el.classList.add("bad");     // 赤寄せ
-  else if (change < 0) el.classList.add("good"); // 青の代わりに緑にしたいならここ変更
-  else el.classList.add("neutral");
-}
-
-// ここは「青」にしたい場合は .good を青にする or class分け変更して
-// 今は EVA感で上=ピンク、下=グリーン寄り
-// 青にしたければ CSS の .good { color:#3ba6ff; } に変えるのが一番早い
+function fmt(n){ return (typeof n==="number")?n.toFixed(3):"--"; }
 
 async function autoAnalyze(){
-  try{
-    document.getElementById("status").innerText = "Fetching...";
-    const res = await fetch('/api/market', { cache: "no-store" });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data?.error || "API error");
+const res = await fetch('/api/market',{cache:"no-store"});
+const data = await res.json();
 
-    // USDJPY
-    const usd = data.usdjpy || {};
-    document.getElementById("usdPrice").innerText = fmt(usd.price, 3);
-    document.getElementById("usdChange").innerText = (typeof usd.changePct === "number")
-      ? `${fmt(usd.changePct, 3)}%`
-      : "--";
-    document.getElementById("usdRsi").innerText = (typeof usd.rsi === "number") ? fmt(usd.rsi, 1) : "--";
-    document.getElementById("usdMeta").innerText =
-      `source=${usd.source || "?"} | updated=${data.updatedAt || "?"}`;
+document.getElementById("usdPrice").innerText = fmt(data.usdjpy?.price);
+document.getElementById("usdChange").innerText = fmt(data.usdjpy?.change);
+document.getElementById("usdRsi").innerText = fmt(data.usdjpy?.rsi);
 
-    // Market % change
-    document.getElementById("sp").innerText  = (typeof data.spPct === "number")  ? `${fmt(data.spPct, 3)}%`  : "--";
-    document.getElementById("vix").innerText = (typeof data.vixPct === "number") ? `${fmt(data.vixPct, 3)}%` : "--";
-    document.getElementById("tlt").innerText = (typeof data.tltPct === "number") ? `${fmt(data.tltPct, 3)}%` : "--";
-    document.getElementById("dxy").innerText = (typeof data.dxyPct === "number") ? `${fmt(data.dxyPct, 3)}%` : "--";
-    document.getElementById("mktMeta").innerText =
-      `SP/VIX/TLT/DXY are % change from provider snapshot`;
+document.getElementById("sp").innerText = fmt(data.spPct);
+document.getElementById("vix").innerText = fmt(data.vixPct);
+document.getElementById("tlt").innerText = fmt(data.tltPct);
+document.getElementById("dxy").innerText = fmt(data.dxyPct);
 
-    // 判定
-    analyze(data);
-
-    document.getElementById("status").innerText = "Updated";
-  }catch(e){
-    console.error(e);
-    document.getElementById("status").innerText = "Fetch error";
-    document.getElementById("reason").innerText = String(e?.message || e);
-  }
+analyze(data);
 }
 
 function analyze(data){
-  const reasons = [];
 
-  // ===== ENV（環境） =====
-  // ルール：SP上 + VIX下 → RISK ON
-  //        SP下 + VIX上 → RISK OFF
-  let env = "RANGE";
-  if (typeof data.spPct === "number" && typeof data.vixPct === "number"){
-    if (data.spPct > 0.25 && data.vixPct < -0.25){
-      env = "RISK ON";
-      reasons.push("SP↑ & VIX↓");
-    } else if (data.spPct < -0.25 && data.vixPct > 0.25){
-      env = "RISK OFF";
-      reasons.push("SP↓ & VIX↑");
-    } else {
-      env = "MIXED";
-      reasons.push("ENV mixed");
-    }
-  } else {
-    env = "UNKNOWN";
-    reasons.push("ENV no data");
-  }
-<div class="box">RISK SCORE: <span id="riskScore">--</span></div>
-<div class="box">USD SCORE: <span id="usdScore">--</span></div>
-<div class="box">TOTAL SCORE: <span id="totalScore">--</span></div>
-  // ===== DIR（ドルの方向） =====
-  // DXY↑ かつ TLT↓（=金利↑） → USD STRONG
-  // DXY↓ かつ TLT↑（=金利↓） → USD WEAK
-  let dir = "NEUTRAL";
-  if (typeof data.dxyPct === "number" && typeof data.tltPct === "number"){
-    if (data.dxyPct > 0.15 && data.tltPct < -0.15){
-      dir = "USD STRONG";
-      reasons.push("DXY↑ & TLT↓(yields↑)");
-    } else if (data.dxyPct < -0.15 && data.tltPct > 0.15){
-      dir = "USD WEAK";
-      reasons.push("DXY↓ & TLT↑(yields↓)");
-    } else {
-      dir = "NEUTRAL";
-      reasons.push("DIR neutral");
-    }
-  } else {
-    dir = "UNKNOWN";
-    reasons.push("DIR no data");
-  }
-
-  // ===== RSI SIGNAL =====
-  let rsiSignal = "NORMAL";
-  const rsi = data.usdjpy?.rsi;
-  if (typeof rsi === "number"){
-    if (rsi >= 70) rsiSignal = "OVERBOUGHT";
-    else if (rsi <= 30) rsiSignal = "OVERSOLD";
-  } else {
-    rsiSignal = "UNKNOWN";
-  }
-
-// ===== SCORE計算 =====
+// ===== SCORE =====
 let riskScore = 0;
-if (data.spPct > 0) riskScore++;
-if (data.spPct < 0) riskScore--;
-if (data.vixPct < 0) riskScore++;
-if (data.vixPct > 0) riskScore--;
-if (data.tltPct < 0) riskScore++;
-if (data.tltPct > 0) riskScore--;
+if(data.spPct>0) riskScore++;
+if(data.spPct<0) riskScore--;
+if(data.vixPct<0) riskScore++;
+if(data.vixPct>0) riskScore--;
+if(data.tltPct<0) riskScore++;
+if(data.tltPct>0) riskScore--;
 
 let usdScore = 0;
-if (data.dxyPct > 0) usdScore++;
-if (data.dxyPct < 0) usdScore--;
-if (data.us10y > 0) usdScore++;
-if (data.us10y < 0) usdScore--;
+if(data.dxyPct>0) usdScore++;
+if(data.dxyPct<0) usdScore--;
 
 let totalScore = riskScore + usdScore;
 
@@ -272,82 +121,33 @@ document.getElementById("riskScore").innerText = riskScore;
 document.getElementById("usdScore").innerText = usdScore;
 document.getElementById("totalScore").innerText = totalScore;
 
-  // ===== ORDER（最終） =====
-  // 守り前提：逆張りの「やる/やらない」を強くする
-  // - RiskOn + USD Strong + RSI normal → 無理に逆張りしない（TREND）
-  // - RiskOff + USD Weak + RSI normal → TREND
-  // - RiskOff + Oversold → COUNTER LONG（反発狙い）
-  // - RiskOn + Overbought → COUNTER SHORT
-  let mode = "COUNTER";
-  if ((env === "RISK ON" && dir === "USD STRONG") || (env === "RISK OFF" && dir === "USD WEAK")){
-    mode = "TREND";
-  }
+// ===== ENV =====
+let env="MIXED";
+if(riskScore>=2) env="RISK ON";
+if(riskScore<=-2) env="RISK OFF";
 
-  let order = "NO TRADE";
+// ===== DIR =====
+let dir="NEUTRAL";
+if(usdScore>0) dir="USD STRONG";
+if(usdScore<0) dir="USD WEAK";
 
-  if (mode === "COUNTER"){
-    if (env === "RISK OFF" && rsiSignal === "OVERSOLD"){
-      order = "LONG (counter)";
-      reasons.push("Counter: RiskOff + Oversold");
-    } else if (env === "RISK ON" && rsiSignal === "OVERBOUGHT"){
-      order = "SHORT (counter)";
-      reasons.push("Counter: RiskOn + Overbought");
-    } else {
-      order = "NO TRADE";
-      reasons.push("Counter: no edge");
-    }
-  }
+// ===== RSI =====
+let rsiSignal="NORMAL";
+if(data.usdjpy?.rsi>=70) rsiSignal="OVERBOUGHT";
+if(data.usdjpy?.rsi<=30) rsiSignal="OVERSOLD";
 
-  if (mode === "TREND"){
-    if (env === "RISK ON" && dir === "USD STRONG" && rsiSignal === "NORMAL"){
-      order = "LONG (trend)";
-      reasons.push("Trend: RiskOn + USD Strong + RSI normal");
-    } else if (env === "RISK OFF" && dir === "USD WEAK" && rsiSignal === "NORMAL"){
-      order = "SHORT (trend)";
-      reasons.push("Trend: RiskOff + USD Weak + RSI normal");
-    } else {
-      order = "NO TRADE";
-      reasons.push("Trend: filter block");
-    }
-  }
+// ===== ORDER =====
+let order="NO TRADE";
+if(totalScore>=3 && rsiSignal==="NORMAL") order="LONG (trend)";
+if(totalScore<=-3 && rsiSignal==="NORMAL") order="SHORT (trend)";
+if(env==="RISK OFF" && rsiSignal==="OVERSOLD") order="LONG (counter)";
+if(env==="RISK ON" && rsiSignal==="OVERBOUGHT") order="SHORT (counter)";
 
-  // 表示
-  const envEl = document.getElementById("env");
-  const dirEl = document.getElementById("dir");
-  const rsiEl = document.getElementById("rsiSignal");
-  const ordEl = document.getElementById("order");
-
-  envEl.innerText = env;
-  dirEl.innerText = dir;
-  rsiEl.innerText = rsiSignal;
-  ordEl.innerText = `${order} [${mode}]`;
-
-  // 色
-  envEl.classList.remove("good","bad","neutral");
-  dirEl.classList.remove("good","bad","neutral");
-  rsiEl.classList.remove("good","bad","neutral");
-  ordEl.classList.remove("good","bad","neutral");
-
-  envEl.classList.add(env==="RISK OFF" ? "bad" : env==="RISK ON" ? "good" : "neutral");
-  dirEl.classList.add(dir==="USD STRONG" ? "bad" : dir==="USD WEAK" ? "good" : "neutral");
-  rsiEl.classList.add(rsiSignal==="OVERBOUGHT" ? "bad" : rsiSignal==="OVERSOLD" ? "good" : "neutral");
-  ordEl.classList.add(order.startsWith("NO") ? "neutral" : order.includes("SHORT") ? "bad" : "good");
-
-  document.getElementById("reason").innerText = reasons.join(" | ");
+document.getElementById("env").innerText = env;
+document.getElementById("dir").innerText = dir;
+document.getElementById("rsiSignal").innerText = rsiSignal;
+document.getElementById("order").innerText = order;
 }
-
-// Auto refresh toggle
-document.getElementById("autoRefresh").addEventListener("change", (e)=>{
-  if (e.target.checked){
-    autoAnalyze();
-    timer = setInterval(autoAnalyze, 15000);
-    document.getElementById("status").innerText = "Auto ON";
-  } else {
-    clearInterval(timer);
-    timer = null;
-    document.getElementById("status").innerText = "Auto OFF";
-  }
-});
 </script>
 
 </body>
