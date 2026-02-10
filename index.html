@@ -77,8 +77,8 @@ async function autoAnalyze() {
     const res = await fetch('/api/market');
     const data = await res.json();
 
-    const usd = data.usdjpy || {};
-    const us10y = data.us10y;
+    const usd = data?.usdjpy || {};
+    const us10y = data?.us10y;
 
     document.getElementById("usdPrice").innerText =
       typeof usd.price === "number" ? usd.price.toFixed(3) : "--";
@@ -104,28 +104,35 @@ async function autoAnalyze() {
 
 function analyze(data) {
 
-  // ===== ENV判定 =====
+  // ===== 安全な値取得 =====
+  const sp = typeof data?.sp === "number" ? data.sp : 0;
+  const vix = typeof data?.vix === "number" ? data.vix : 0;
+  const dxy = typeof data?.dxy === "number" ? data.dxy : 0;
+  const us10y = typeof data?.us10y === "number" ? data.us10y : 0;
+  const rsi = typeof data?.usdjpy?.rsi === "number" ? data.usdjpy.rsi : 50;
+
+  // ===== ENV判定（両方一致のみ）=====
   let env = "RANGE";
 
-  if (data.sp > 0.5 && data.vix < -0.5) {
+  if (sp > 0.5 && vix < -0.5) {
     env = "RISK ON";
   }
 
-  if (data.sp < -0.5 && data.vix > 0.5) {
+  if (sp < -0.5 && vix > 0.5) {
     env = "RISK OFF";
   }
 
   document.getElementById("env").innerText = env;
 
 
-  // ===== DIR判定（金利込み） =====
+  // ===== DIR判定（金利一致確認）=====
   let dir = "NEUTRAL";
 
-  if (data.dxy > 0.3 && data.us10y > 0.02) {
+  if (dxy > 0.3 && us10y > 0.02) {
     dir = "USD STRONG";
   }
 
-  if (data.dxy < -0.3 && data.us10y < -0.02) {
+  if (dxy < -0.3 && us10y < -0.02) {
     dir = "USD WEAK";
   }
 
@@ -135,20 +142,20 @@ function analyze(data) {
   // ===== RSI判定 =====
   let rsiSignal = "NORMAL";
 
-  if (data.usdjpy?.rsi > 70) rsiSignal = "OVERBOUGHT";
-  if (data.usdjpy?.rsi < 30) rsiSignal = "OVERSOLD";
+  if (rsi > 70) rsiSignal = "OVERBOUGHT";
+  if (rsi < 30) rsiSignal = "OVERSOLD";
 
   document.getElementById("rsiSignal").innerText = rsiSignal;
 
 
-  // ===== ORDERロジック =====
+  // ===== ORDERロジック（厳しめ）=====
   let order = "NO TRADE";
 
-  if (env === "RISK ON" && dir === "USD WEAK") {
+  if (env === "RISK ON" && dir === "USD WEAK" && rsi < 60) {
     order = "BUY";
   }
 
-  if (env === "RISK OFF" && dir === "USD STRONG") {
+  if (env === "RISK OFF" && dir === "USD STRONG" && rsi > 40) {
     order = "SELL";
   }
 
