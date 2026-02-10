@@ -5,28 +5,36 @@
 <title>FX CORE AUTO</title>
 
 <style>
-body{
+body {
   background:black;
   color:#00ffc3;
   font-family:monospace;
   text-align:center;
 }
-h1{ margin-top:30px; }
 
-.box{
+h1 {
+  margin-top:30px;
+  font-size:32px;
+}
+
+.box {
   border:2px solid #00ffc3;
   margin:15px auto;
   padding:15px;
   width:90%;
   max-width:500px;
+  font-size:18px;
 }
 
-input{
+input {
   width:80px;
   text-align:center;
+  background:black;
+  color:#00ffc3;
+  border:1px solid #00ffc3;
 }
 
-button{
+button {
   background:#ff3b7f;
   color:black;
   padding:10px 30px;
@@ -36,9 +44,10 @@ button{
   cursor:pointer;
 }
 
-#tv_chart{
-  margin:40px auto;
-  max-width:900px;
+.status {
+  margin-top:10px;
+  font-size:14px;
+  opacity:0.7;
 }
 </style>
 </head>
@@ -54,117 +63,91 @@ button{
 
 <div class="box">USDJPY: <span id="usdPrice">--</span></div>
 <div class="box">CHANGE: <span id="usdChange">--</span></div>
-<div class="box">RSI: <span id="usdRsi">--</span></div>
+<div class="box">RSI(14): <span id="usdRsi">--</span></div>
 
 <div class="box">ENV: <span id="env">--</span></div>
 <div class="box">DIR: <span id="dir">--</span></div>
 <div class="box">RSI SIGNAL: <span id="rsiSignal">--</span></div>
 <div class="box">ORDER: <span id="order">--</span></div>
 
+<div class="box">
+  <label>
+    <input type="checkbox" id="autoRefresh">
+    Auto refresh (15s)
+  </label>
+  <div class="status" id="status">Ready.</div>
+</div>
+
 <button onclick="autoAnalyze()">AUTO ANALYZE</button>
-
-<!-- 🔥 TradingView -->
-<div id="tv_chart"></div>
-
-<script src="https://s3.tradingview.com/tv.js"></script>
-<script>
-new TradingView.widget({
-  "width": "100%",
-  "height": 500,
-  "symbol": "FX:USDJPY",
-  "interval": "15",
-  "timezone": "Asia/Tokyo",
-  "theme": "dark",
-  "style": "1",
-  "locale": "en",
-  "container_id": "tv_chart"
-});
-</script>
 
 <script>
 
 let timer = null;
 
-/* ===== RSI計算 ===== */
-function calculateRSI(closes, period=14){
-  let gains=0, losses=0;
-  for(let i=1;i<=period;i++){
-    const diff=closes[i]-closes[i-1];
-    if(diff>=0) gains+=diff;
-    else losses-=diff;
-  }
-  const avgGain=gains/period;
-  const avgLoss=losses/period;
-  if(avgLoss===0) return 100;
-  const rs=avgGain/avgLoss;
-  return 100-(100/(1+rs));
-}
+async function autoAnalyze() {
+  try {
+    const res = await fetch('/api/market');
+    const data = await res.json();
 
-/* ===== API取得 ===== */
-async function autoAnalyze(){
-  try{
+    const usd = data.usdjpy || {};
 
-    // 🔥 無料為替API
-    const priceRes = await fetch("https://api.exchangerate.host/latest?base=USD&symbols=JPY");
-    const priceData = await priceRes.json();
+    document.getElementById("usdPrice").innerText =
+      typeof usd.price === "number" ? usd.price.toFixed(3) : "--";
 
-    const usdJpy = priceData.rates.JPY;
-    document.getElementById("usdPrice").innerText = usdJpy.toFixed(3);
+    document.getElementById("usdChange").innerText =
+      typeof usd.change === "number" ? usd.change : "--";
 
-    // 変動ダミー（無料APIでは前日比較不可）
-    const change = (Math.random()*0.3-0.15);
-    document.getElementById("usdChange").innerText = change.toFixed(3);
+    document.getElementById("usdRsi").innerText =
+      typeof usd.rsi === "number" ? usd.rsi : "--";
 
-    // RSI用ダミー終値生成（無料API制限対策）
-    let closes=[];
-    for(let i=0;i<15;i++){
-      closes.push(usdJpy + (Math.random()*0.5-0.25));
-    }
-    const rsi = calculateRSI(closes);
-    document.getElementById("usdRsi").innerText = rsi.toFixed(1);
+    analyze(data);
 
-    analyze({
-      sp:0.3,
-      vix:-0.2,
-      dxy:0.2,
-      rsi:rsi
-    });
+    document.getElementById("status").innerText = "Updated.";
 
-  }catch(e){
+  } catch (e) {
     console.error(e);
+    document.getElementById("status").innerText = "Fetch error.";
   }
 }
 
-/* ===== 分析ロジック ===== */
-function analyze(data){
+function analyze(data) {
 
-  let env="RANGE";
-  if(data.sp>0.5) env="RISK ON";
-  if(data.vix>0.5) env="RISK OFF";
-  document.getElementById("env").innerText=env;
+  // ENV判定
+  let env = "RANGE";
+  if (data.sp > 0.5) env = "RISK ON";
+  if (data.vix > 0.5) env = "RISK OFF";
+  document.getElementById("env").innerText = env;
 
-  let dir="NEUTRAL";
-  if(data.dxy>0.3) dir="USD STRONG";
-  if(data.dxy<-0.3) dir="USD WEAK";
-  document.getElementById("dir").innerText=dir;
+  // DIR判定
+  let dir = "NEUTRAL";
+  if (data.dxy > 0.3) dir = "USD STRONG";
+  if (data.dxy < -0.3) dir = "USD WEAK";
+  document.getElementById("dir").innerText = dir;
 
-  let rsiSignal="NORMAL";
-  if(data.rsi>70) rsiSignal="OVERBOUGHT";
-  if(data.rsi<30) rsiSignal="OVERSOLD";
-  document.getElementById("rsiSignal").innerText=rsiSignal;
+  // RSI判定
+  let rsiSignal = "NORMAL";
+  if (data.usdjpy?.rsi > 70) rsiSignal = "OVERBOUGHT";
+  if (data.usdjpy?.rsi < 30) rsiSignal = "OVERSOLD";
+  document.getElementById("rsiSignal").innerText = rsiSignal;
 
-  let order="NO TRADE";
-  if(env==="RISK ON" && dir==="USD WEAK") order="BUY";
-  if(env==="RISK OFF" && dir==="USD STRONG") order="SELL";
-  document.getElementById("order").innerText=order;
+  // ORDER判定
+  let order = "NO TRADE";
+  if (env === "RISK ON" && dir === "USD WEAK") order = "BUY";
+  if (env === "RISK OFF" && dir === "USD STRONG") order = "SELL";
+  document.getElementById("order").innerText = order;
 }
 
-/* ===== 自動更新 ===== */
-function startAuto(){
-  autoAnalyze();
-  timer=setInterval(autoAnalyze,15000);
-}
-startAuto();
+document.getElementById("autoRefresh").addEventListener("change", function(e){
+  if (e.target.checked) {
+    autoAnalyze();
+    timer = setInterval(autoAnalyze, 15000);
+    document.getElementById("status").innerText = "Auto refresh ON.";
+  } else {
+    clearInterval(timer);
+    timer = null;
+    document.getElementById("status").innerText = "Auto refresh OFF.";
+  }
+});
 
 </script>
 
