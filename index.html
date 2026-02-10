@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>FX CORE AUTO</title>
+
 <style>
 body {
   background:black;
@@ -39,6 +40,7 @@ button {
 }
 </style>
 </head>
+
 <body>
 
 <h1>FX CORE AUTO</h1>
@@ -75,14 +77,15 @@ button {
 <button onclick="autoAnalyze()">AUTO ANALYZE</button>
 
 <script>
+
 async function autoAnalyze() {
   try {
     const res = await fetch('/api/market');
     const data = await res.json();
 
     // USDJPY表示
-    document.getElementById("usdPrice").innerText = data.usdjpy.price;
-    document.getElementById("usdChange").innerText = data.usdjpy.change;
+    document.getElementById("usdPrice").innerText = data.usdjpy.price.toFixed(2);
+    document.getElementById("usdChange").innerText = data.usdjpy.change.toFixed(2);
 
     analyze(data);
 
@@ -111,15 +114,20 @@ function analyze(data) {
   if (data.rsi < 30) rsiSignal = "OVERSOLD";
   document.getElementById("rsiSignal").innerText = rsiSignal;
 
-  // ORDER判定（シンプルロジック）
+  // ORDER判定
   let order = "NO TRADE";
-  if (env === "RISK ON" && dir === "USD WEAK" && rsiSignal === "OVERSOLD")
-    order = "BUY";
-  if (env === "RISK OFF" && dir === "USD STRONG" && rsiSignal === "OVERBOUGHT")
-    order = "SELL";
-
+  if (env === "RISK ON" && dir === "USD WEAK") order = "BUY";
+  if (env === "RISK OFF" && dir === "USD STRONG") order = "SELL";
   document.getElementById("order").innerText = order;
 }
+
+
+// 🔥 ページ読み込み時に実行
+autoAnalyze();
+
+// 🔥 5秒ごと自動更新
+setInterval(autoAnalyze, 5000);
+
 </script>
 
 </body>
