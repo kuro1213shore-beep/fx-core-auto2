@@ -150,5 +150,26 @@ document.getElementById("order").innerText = order;
 }
 </script>
 
+<script>
+
+// ===== fetch layer =====
+async function fetchMarket(){
+  const res = await fetch('/api/market', { cache: "no-store" });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.error || "API error");
+  return data;
+}
+
+async function autoAnalyze(){
+  try{
+    const data = await fetchMarket();
+    console.log("DATA:", data);
+  }catch(e){
+    console.error(e);
+  }
+}
+
+</script>
+
 </body>
 </html>
