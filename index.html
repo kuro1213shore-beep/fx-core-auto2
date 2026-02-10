@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FX CORE AUTO</title>
 
 <style>
@@ -20,8 +20,14 @@ body{
   font-family:monospace;
   text-align:center;
 }
-h1{ margin:20px 0; }
-.wrap{ width:92%; max-width:560px; margin:0 auto; }
+h1{
+  margin:20px 0;
+}
+.wrap{
+  width:92%;
+  max-width:560px;
+  margin:0 auto;
+}
 .box{
   border:var(--border);
   margin:12px 0;
@@ -31,11 +37,7 @@ h1{ margin:20px 0; }
 .row{
   display:flex;
   justify-content:space-between;
-  margin:4px 0;
 }
-.good{ color:#00ff7b; }
-.bad{ color:#ff3b7f; }
-.neutral{ color:#9aa; }
 button{
   background:var(--danger);
   color:#000;
@@ -44,10 +46,16 @@ button{
   font-weight:bold;
   cursor:pointer;
 }
+iframe{
+  border:0;
+  width:100%;
+  height:420px;
+}
 </style>
 </head>
 
 <body>
+
 <h1>FX CORE AUTO</h1>
 <div class="wrap">
 
@@ -81,14 +89,18 @@ button{
   <button onclick="autoAnalyze()">AUTO ANALYZE</button>
 </div>
 
+<!-- チャート分離 -->
 <div class="box">
-  <iframe 
-    src="chart.html" 
-    style="width:100%; height:420px; border:0;">
-  </iframe>
+  <iframe src="chart.html"></iframe>
 </div>
 
-<script>
+</div>
+
+<!-- ===== module対応 ===== -->
+<script type="module">
+
+import { calcScore } from './score.js';
+
 function fmt(n){
   return (typeof n === "number") ? n.toFixed(3) : "--";
 }
@@ -98,7 +110,7 @@ async function autoAnalyze(){
     const res = await fetch('/api/market',{cache:"no-store"});
     const data = await res.json();
 
-    // ===== 表示 =====
+    // 表示
     document.getElementById("usdPrice").innerText = fmt(data.usdjpy?.price);
     document.getElementById("usdChange").innerText = fmt(data.usdjpy?.changePct);
     document.getElementById("usdRsi").innerText = fmt(data.usdjpy?.rsi);
@@ -118,42 +130,30 @@ async function autoAnalyze(){
 
 function analyze(data){
 
-  // ===== SCORE =====
-  let riskScore=0;
-  if(data.spPct>0) riskScore++;
-  if(data.spPct<0) riskScore--;
-  if(data.vixPct<0) riskScore++;
-  if(data.vixPct>0) riskScore--;
-  if(data.tltPct<0) riskScore++;
-  if(data.tltPct>0) riskScore--;
+  const { riskScore, usdScore, totalScore } = calcScore(data);
 
-  let usdScore=0;
-  if(data.dxyPct>0) usdScore++;
-  if(data.dxyPct<0) usdScore--;
+  document.getElementById("riskScore").innerText = riskScore;
+  document.getElementById("usdScore").innerText = usdScore;
+  document.getElementById("totalScore").innerText = totalScore;
 
-  let totalScore=riskScore+usdScore;
-
-  document.getElementById("riskScore").innerText=riskScore;
-  document.getElementById("usdScore").innerText=usdScore;
-  document.getElementById("totalScore").innerText=totalScore;
-
-  // ===== ENV =====
+  // ENV
   let env="MIXED";
   if(riskScore>=2) env="RISK ON";
   if(riskScore<=-2) env="RISK OFF";
 
-  // ===== DIR =====
+  // DIR
   let dir="NEUTRAL";
   if(usdScore>0) dir="USD STRONG";
   if(usdScore<0) dir="USD WEAK";
 
-  // ===== RSI =====
+  // RSI
   let rsiSignal="NORMAL";
   let rsi=data.usdjpy?.rsi;
+
   if(rsi>=70) rsiSignal="OVERBOUGHT";
   if(rsi<=30) rsiSignal="OVERSOLD";
 
-  // ===== ORDER =====
+  // ORDER
   let order="NO TRADE";
 
   if(totalScore>=3 && rsiSignal==="NORMAL"){
@@ -174,6 +174,10 @@ function analyze(data){
   document.getElementById("rsiSignal").innerText=rsiSignal;
   document.getElementById("order").innerText=order;
 }
+
+// ボタン用
+window.autoAnalyze = autoAnalyze;
+
 </script>
 
 </body>
