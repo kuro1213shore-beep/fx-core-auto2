@@ -154,6 +154,8 @@ function analyze(data){
   document.getElementById("usdScore").innerText = usdScore;
   document.getElementById("totalScore").innerText = totalScore;
 
+  const mode = data.usdjpy?.marketMode || "RANGE";
+
   let env="MIXED";
   if(riskScore>=2) env="RISK ON";
   if(riskScore<=-2) env="RISK OFF";
@@ -163,23 +165,29 @@ function analyze(data){
   if(usdScore<0) dir="USD WEAK";
 
   let rsiSignal="NORMAL";
-  let rsi=data.usdjpy?.rsi;
+  const rsi=data.usdjpy?.rsi;
   if(rsi>=70) rsiSignal="OVERBOUGHT";
   if(rsi<=30) rsiSignal="OVERSOLD";
 
   let order="NO TRADE";
 
-  if(totalScore>=3 && rsiSignal==="NORMAL"){
-    order="LONG (trend)";
+  if(mode==="DOWNTREND"){
+    if(totalScore<=-1 && rsiSignal!=="OVERSOLD"){
+      order="SHORT (trend)";
+    }
   }
-  else if(totalScore<=-3 && rsiSignal==="NORMAL"){
-    order="SHORT (trend)";
+  else if(mode==="UPTREND"){
+    if(totalScore>=1 && rsiSignal!=="OVERBOUGHT"){
+      order="LONG (trend)";
+    }
   }
-  else if(env==="RISK OFF" && rsiSignal==="OVERSOLD"){
-    order="LONG (counter)";
-  }
-  else if(env==="RISK ON" && rsiSignal==="OVERBOUGHT"){
-    order="SHORT (counter)";
+  else{
+    if(env==="RISK OFF" && rsiSignal==="OVERSOLD"){
+      order="LONG (counter)";
+    }
+    else if(env==="RISK ON" && rsiSignal==="OVERBOUGHT"){
+      order="SHORT (counter)";
+    }
   }
 
   document.getElementById("env").innerText=env;
