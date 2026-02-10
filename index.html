@@ -26,14 +26,6 @@ h1 {
   font-size:18px;
 }
 
-input {
-  width:80px;
-  text-align:center;
-  background:black;
-  color:#00ffc3;
-  border:1px solid #00ffc3;
-}
-
 button {
   background:#ff3b7f;
   color:black;
@@ -56,14 +48,10 @@ button {
 
 <h1>FX CORE AUTO</h1>
 
-<div class="box">
-  BUY SIZE <input id="buySize" value="100">
-  SELL SIZE <input id="sellSize" value="250">
-</div>
-
 <div class="box">USDJPY: <span id="usdPrice">--</span></div>
 <div class="box">CHANGE: <span id="usdChange">--</span></div>
 <div class="box">RSI(14): <span id="usdRsi">--</span></div>
+<div class="box">US10Y: <span id="us10y">--</span></div>
 
 <div class="box">ENV: <span id="env">--</span></div>
 <div class="box">DIR: <span id="dir">--</span></div>
@@ -90,6 +78,7 @@ async function autoAnalyze() {
     const data = await res.json();
 
     const usd = data.usdjpy || {};
+    const us10y = data.us10y;
 
     document.getElementById("usdPrice").innerText =
       typeof usd.price === "number" ? usd.price.toFixed(3) : "--";
@@ -98,7 +87,10 @@ async function autoAnalyze() {
       typeof usd.change === "number" ? usd.change : "--";
 
     document.getElementById("usdRsi").innerText =
-      typeof usd.rsi === "number" ? usd.rsi : "--";
+      typeof usd.rsi === "number" ? usd.rsi.toFixed(1) : "--";
+
+    document.getElementById("us10y").innerText =
+      typeof us10y === "number" ? us10y.toFixed(3) : "--";
 
     analyze(data);
 
@@ -112,31 +104,59 @@ async function autoAnalyze() {
 
 function analyze(data) {
 
-  // ENV判定
+  // ===== ENV判定 =====
   let env = "RANGE";
-  if (data.sp > 0.5) env = "RISK ON";
-  if (data.vix > 0.5) env = "RISK OFF";
+
+  if (data.sp > 0.5 && data.vix < -0.5) {
+    env = "RISK ON";
+  }
+
+  if (data.sp < -0.5 && data.vix > 0.5) {
+    env = "RISK OFF";
+  }
+
   document.getElementById("env").innerText = env;
 
-  // DIR判定
+
+  // ===== DIR判定（金利込み） =====
   let dir = "NEUTRAL";
-  if (data.dxy > 0.3) dir = "USD STRONG";
-  if (data.dxy < -0.3) dir = "USD WEAK";
+
+  if (data.dxy > 0.3 && data.us10y > 0.02) {
+    dir = "USD STRONG";
+  }
+
+  if (data.dxy < -0.3 && data.us10y < -0.02) {
+    dir = "USD WEAK";
+  }
+
   document.getElementById("dir").innerText = dir;
 
-  // RSI判定
+
+  // ===== RSI判定 =====
   let rsiSignal = "NORMAL";
+
   if (data.usdjpy?.rsi > 70) rsiSignal = "OVERBOUGHT";
   if (data.usdjpy?.rsi < 30) rsiSignal = "OVERSOLD";
+
   document.getElementById("rsiSignal").innerText = rsiSignal;
 
-  // ORDER判定
+
+  // ===== ORDERロジック =====
   let order = "NO TRADE";
-  if (env === "RISK ON" && dir === "USD WEAK") order = "BUY";
-  if (env === "RISK OFF" && dir === "USD STRONG") order = "SELL";
+
+  if (env === "RISK ON" && dir === "USD WEAK") {
+    order = "BUY";
+  }
+
+  if (env === "RISK OFF" && dir === "USD STRONG") {
+    order = "SELL";
+  }
+
   document.getElementById("order").innerText = order;
 }
 
+
+// ===== Auto Refresh =====
 document.getElementById("autoRefresh").addEventListener("change", function(e){
   if (e.target.checked) {
     autoAnalyze();
