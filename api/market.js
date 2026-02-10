@@ -1,8 +1,8 @@
 export default async function handler(req, res) {
   try {
-    const apiKey = process.env.TWELVEDATA_API_KEY;
+    const apikey = process.env.TWELVEDATA_API_KEY;
 
-    if (!apiKey) {
+    if (!apikey) {
       return res.status(500).json({ error: "API key missing" });
     }
 
