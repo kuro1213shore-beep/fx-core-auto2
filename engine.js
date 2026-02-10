@@ -27,6 +27,14 @@ export function analyzeLogic(data, riskScore, usdScore, totalScore){
       order="LONG (trend)";
     }
   }
+  else{
+    if(env==="RISK OFF" && rsiSignal==="OVERSOLD"){
+      order="LONG (counter)";
+    }
+    else if(env==="RISK ON" && rsiSignal==="OVERBOUGHT"){
+      order="SHORT (counter)";
+    }
+  }
 
-  return { env, dir, rsiSignal, order };
+  return { mode, env, dir, rsiSignal, order };
 }
