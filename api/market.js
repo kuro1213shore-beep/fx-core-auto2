@@ -9,66 +9,60 @@ export default async function handler(req, res) {
       dxyPct: null,
     };
 
-    // --- TradingView scanner fetch ---
-    async function tvScan(market, symbol, columns) {
+    // ===== TradingView Scanner =====
+    async function tvScan(market, symbol) {
       const url = `https://scanner.tradingview.com/${market}/scan`;
+
       const body = {
-        symbols: { tickers: [symbol], query: { types: [] } },
-        columns,
+        symbols: {
+          tickers: [symbol],
+          query: { types: [] }
+        },
+        columns: ["close", "change"]
       };
+
       const r = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-      if (!r.ok) throw new Error(`TV scan failed ${symbol}: ${r.status}`);
+
+      if (!r.ok) return null;
+
       const j = await r.json();
-      const row = j?.data?.[0]?.d;
-      return row || null;
+      return j?.data?.[0]?.d || null;
     }
 
-    // USDJPY: price + change% + RSI (TradingView has RSI columns sometimes not stable)
-    // We compute RSI ourselves using 15m closes from TV chart endpoint is blocked often.
-    // So: use scanner close + change + request a short history via TwelveData if available.
-    // To keep it "できる範囲の自動化": 
-    // - price/change: TradingView
-    // - RSI: TwelveData if key exists, otherwise fallback "null"
-
-    // 1) price/change from TV
-    const usd = await tvScan("forex", "FX:USDJPY", ["close", "change"]);
+    // ===== USDJPY =====
+    const usd = await tvScan("forex", "FX:USDJPY");
     if (usd) {
       out.usdjpy.price = usd[0];
-      out.usdjpy.changePct = usd[1];
-      out.usdjpy.source = "tradingview";
+      out.usdjpy.change = usd[1];
     }
 
-    // 2) SPX/VIX/TLT/DXY %change from TV
-    const sp = await tvScan("america", "SP:SPX", ["change"]);
-    const vix = await tvScan("america", "CBOE:VIX", ["change"]);
-    const tlt = await tvScan("america", "NASDAQ:TLT", ["change"]);
-    const dxy = await tvScan("america", "ICEUS:DXY", columns);
+    // ===== SPX / VIX / TLT / DXY =====
+    const sp  = await tvScan("america", "SP:SPX");
+    const vix = await tvScan("america", "CBOE:VIX");
+    const tlt = await tvScan("america", "NASDAQ:TLT");
+    const dxy = await tvScan("indices", "TVC:DXY");
 
-    out.spPct = sp ? sp[0] : null;
-    out.vixPct = vix ? vix[0] : null;
-    out.tltPct = tlt ? tlt[0] : null;
-    out.dxyPct = dxy ? dxy[0] : null;
+    out.spPct  = sp  ? sp[1]  : null;
+    out.vixPct = vix ? vix[1] : null;
+    out.tltPct = tlt ? tlt[1] : null;
+    out.dxyPct = dxy ? dxy[1] : null;
 
-    // 3) RSI via TwelveData (optional)
-    // Set env var on Vercel: TWELVEDATA_KEY
-    const key = process.env.TWELVEDATA_KEY;
+    // ===== RSI（TwelveDataあれば使用）=====
+    const key = process.env.TWELVEDATA_API_KEY;
 
     if (key) {
-      // RSI needs a series of closes.
-      // We'll fetch 15min closes (compact) and compute RSI(14).
       const tdUrl =
-        `https://api.twelvedata.com/time_series?symbol=USD/JPY&interval=15min&outputsize=200&format=JSON&apikey=${encodeURIComponent(key)}`;
-      const r = await fetch(tdUrl, { method: "GET" });
+        `https://api.twelvedata.com/time_series?symbol=USD/JPY&interval=15min&outputsize=100&apikey=${key}`;
+
+      const r = await fetch(tdUrl);
       const j = await r.json();
 
-      const values = j?.values;
-      if (Array.isArray(values) && values.length >= 20) {
-        // values are newest-first. reverse to oldest-first
-        const closes = values
+      if (Array.isArray(j.values)) {
+        const closes = j.values
           .slice()
           .reverse()
           .map(v => Number(v.close))
@@ -77,21 +71,22 @@ export default async function handler(req, res) {
         const rsi = calcRSI(closes, 14);
         if (Number.isFinite(rsi)) {
           out.usdjpy.rsi = rsi;
-          out.usdjpy.source = "twelvedata+rsi";
         }
       }
     }
 
     res.setHeader("Cache-Control", "no-store");
     return res.status(200).json(out);
+
   } catch (e) {
-    return res.status(500).json({ error: String(e?.message || e) });
+    return res.status(500).json({ error: e.message });
   }
 }
 
-// Wilder RSI
+
+// ===== Wilder RSI =====
 function calcRSI(closes, period = 14) {
-  if (!Array.isArray(closes) || closes.length < period + 1) return null;
+  if (!Array.isArray(closes) || closes.length <= period) return null;
 
   let gains = 0;
   let losses = 0;
@@ -105,7 +100,6 @@ function calcRSI(closes, period = 14) {
   let avgGain = gains / period;
   let avgLoss = losses / period;
 
-  // Continue smoothing to the end
   for (let i = period + 1; i < closes.length; i++) {
     const diff = closes[i] - closes[i - 1];
     const gain = diff > 0 ? diff : 0;
@@ -116,6 +110,7 @@ function calcRSI(closes, period = 14) {
   }
 
   if (avgLoss === 0) return 100;
+
   const rs = avgGain / avgLoss;
   return 100 - (100 / (1 + rs));
 }
