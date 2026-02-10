@@ -1,134 +1,222 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>FX CORE AUTO</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>FX CORE AUTO</title>
+  <style>
+    body {
+      background: black;
+      color: #00ffc3;
+      font-family: monospace;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+    h1 { margin-top: 24px; letter-spacing: 2px; }
+    .box {
+      border: 2px solid #00ffc3;
+      margin: 12px auto;
+      padding: 14px;
+      width: 90%;
+      max-width: 520px;
+      box-sizing: border-box;
+    }
+    .row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    input {
+      width: 90px;
+      text-align: center;
+      font-family: monospace;
+      padding: 6px 8px;
+      border: 1px solid #00ffc3;
+      background: #050505;
+      color: #00ffc3;
+      outline: none;
+    }
+    button {
+      background: #ff3b7f;
+      color: black;
+      padding: 12px 26px;
+      border: none;
+      margin-top: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      font-family: monospace;
+      letter-spacing: 1px;
+    }
+    .muted { color: #9aa; font-size: 12px; margin-top: 10px; }
+    .ok { color: #00ffc3; }
+    .warn { color: #ffcc66; }
+    .bad { color: #ff5a5a; }
+    .small { font-size: 12px; opacity: 0.85; }
 
-<style>
-body {
-  background:black;
-  color:#00ffc3;
-  font-family:monospace;
-  text-align:center;
-}
-
-h1 {
-  margin-top:30px;
-}
-
-.box {
-  border:2px solid #00ffc3;
-  margin:15px auto;
-  padding:15px;
-  width:90%;
-  max-width:500px;
-}
-
-input {
-  width:80px;
-  text-align:center;
-}
-
-button {
-  background:#ff3b7f;
-  color:black;
-  padding:10px 30px;
-  border:none;
-  margin-top:20px;
-  font-weight:bold;
-  cursor:pointer;
-}
-</style>
+    .tvWrap {
+      width: 90%;
+      max-width: 980px;
+      margin: 20px auto 30px;
+      border: 1px solid #00ffc3;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+  </style>
 </head>
-
 <body>
+  <h1>FX CORE AUTO</h1>
 
-<h1>FX CORE AUTO</h1>
+  <div class="box">
+    <div class="row">
+      <div>BUY SIZE</div>
+      <input id="buySize" value="100" />
+      <div>SELL SIZE</div>
+      <input id="sellSize" value="250" />
+    </div>
+  </div>
 
-<div class="box">
-  BUY SIZE <input id="buySize" value="100">
-  SELL SIZE <input id="sellSize" value="250">
-</div>
+  <div class="box">USDJPY: <span id="usdPrice">--</span></div>
+  <div class="box">CHANGE: <span id="usdChange">--</span></div>
+  <div class="box">RSI(14): <span id="usdRsi">--</span></div>
 
-<div class="box">
-  USDJPY: <span id="usdPrice">--</span>
-</div>
+  <div class="box">ENV: <span id="env">--</span></div>
+  <div class="box">DIR: <span id="dir">--</span></div>
+  <div class="box">RSI SIGNAL: <span id="rsiSignal">--</span></div>
+  <div class="box">ORDER: <span id="order">--</span></div>
 
-<div class="box">
-  CHANGE: <span id="usdChange">--</span>
-</div>
+  <div class="box">
+    <div class="row">
+      <label class="small">
+        <input type="checkbox" id="autoRefresh" />
+        Auto refresh (15s)
+      </label>
+      <span class="small muted">(無料枠だと 5秒は詰みやすい)</span>
+    </div>
+    <div class="muted" id="status">Ready.</div>
+  </div>
 
-<div class="box">
-  ENV: <span id="env">--</span>
-</div>
+  <button onclick="autoAnalyze()">AUTO ANALYZE</button>
+  <div class="muted">※ 市場データ自動取得 / 壁は手入力</div>
 
-<div class="box">
-  DIR: <span id="dir">--</span>
-</div>
+  <!-- TradingView Widget (Symbol Overview) -->
+  <div class="tvWrap">
+    <div class="small muted">TradingView (USDJPY)</div>
+    <div class="tradingview-widget-container">
+      <div id="tv-widget"></div>
+      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
+      {
+        "symbols": [["FX:USDJPY|5"]],
+        "chartOnly": false,
+        "width": "100%",
+        "height": 420,
+        "locale": "ja",
+        "colorTheme": "dark",
+        "autosize": true,
+        "showVolume": true,
+        "showMA": true,
+        "hideDateRanges": false,
+        "hideMarketStatus": false,
+        "hideSymbolLogo": false,
+        "scalePosition": "right",
+        "scaleMode": "Normal",
+        "fontFamily": "monospace",
+        "fontSize": "12",
+        "noTimeScale": false,
+        "valuesTracking": "1",
+        "changeMode": "price-and-percent",
+        "lineWidth": 2,
+        "dateRanges": ["1D|5", "5D|5", "1M|60", "3M|60", "6M|120"]
+      }
+      </script>
+    </div>
+  </div>
 
-<div class="box">
-  RSI SIGNAL: <span id="rsiSignal">--</span>
-</div>
+  <script>
+    let timer = null;
 
-<div class="box">
-  ORDER: <span id="order">--</span>
-</div>
+    function setStatus(msg, kind="ok") {
+      const el = document.getElementById("status");
+      el.textContent = msg;
+      el.className = kind === "ok" ? "muted ok" : (kind === "warn" ? "muted warn" : "muted bad");
+    }
 
-<button onclick="autoAnalyze()">AUTO ANALYZE</button>
+    function rsiSignalLabel(rsi) {
+      if (rsi == null) return "--";
+      if (rsi >= 70) return "OVERBOUGHT";
+      if (rsi <= 30) return "OVERSOLD";
+      return "NORMAL";
+    }
 
-<script>
+    function analyze(data) {
+      // ENV判定（仮ロジック：あなたの好きなように調整してOK）
+      let env = "RANGE";
+      if (data.sp > 0.5) env = "RISK ON";
+      if (data.vix > 0.5) env = "RISK OFF";
+      document.getElementById("env").innerText = env;
 
-async function autoAnalyze() {
-  try {
-    const res = await fetch('/api/market');
-    const data = await res.json();
+      // DIR判定
+      let dir = "NEUTRAL";
+      if (data.dxy > 0.3) dir = "USD STRONG";
+      if (data.dxy < -0.3) dir = "USD WEAK";
+      document.getElementById("dir").innerText = dir;
 
-    // USDJPY表示
-    document.getElementById("usdPrice").innerText = data.usdjpy.price.toFixed(2);
-    document.getElementById("usdChange").innerText = data.usdjpy.change.toFixed(2);
+      // RSI判定
+      const rsi = (data.usdjpy && typeof data.usdjpy.rsi === "number") ? data.usdjpy.rsi : data.rsi;
+      const sig = rsiSignalLabel(rsi);
+      document.getElementById("rsiSignal").innerText = sig;
 
-    analyze(data);
+      // ORDER判定（超シンプル）
+      let order = "NO TRADE";
+      if (env === "RISK ON" && dir === "USD WEAK" && sig === "OVERSOLD") order = "BUY";
+      if (env === "RISK OFF" && dir === "USD STRONG" && sig === "OVERBOUGHT") order = "SELL";
+      document.getElementById("order").innerText = order;
+    }
 
-  } catch (e) {
-    console.error("Fetch error", e);
-  }
-}
+    async function autoAnalyze() {
+      try {
+        setStatus("Fetching /api/market ...", "ok");
+        const res = await fetch("/api/market");
+        const data = await res.json();
 
-function analyze(data) {
+        if (!res.ok) {
+          setStatus("API error: " + (data.error || "unknown"), "bad");
+          return;
+        }
 
-  // ENV判定
-  let env = "RANGE";
-  if (data.sp > 0.5) env = "RISK ON";
-  if (data.vix > 0.5) env = "RISK OFF";
-  document.getElementById("env").innerText = env;
+        // USDJPY表示
+        const usd = data.usdjpy || {};
+        document.getElementById("usdPrice").innerText =
+          (typeof usd.price === "number") ? usd.price.toFixed(3) : "--";
+        document.getElementById("usdChange").innerText =
+          (typeof usd.change === "number") ? usd.change.toFixed(3) : "--";
+        document.getElementById("usdRsi").innerText =
+          (typeof usd.rsi === "number") ? usd.rsi.toFixed(1) : "--";
 
-  // DIR判定
-  let dir = "NEUTRAL";
-  if (data.dxy > 0.3) dir = "USD STRONG";
-  if (data.dxy < -0.3) dir = "USD WEAK";
-  document.getElementById("dir").innerText = dir;
+        analyze(data);
 
-  // RSI判定
-  let rsiSignal = "NORMAL";
-  if (data.rsi > 70) rsiSignal = "OVERBOUGHT";
-  if (data.rsi < 30) rsiSignal = "OVERSOLD";
-  document.getElementById("rsiSignal").innerText = rsiSignal;
+        const src = usd.source ? ` (${usd.source})` : "";
+        setStatus("Updated." + src, "ok");
+      } catch (e) {
+        console.error(e);
+        setStatus("Fetch failed. Open console.", "bad");
+      }
+    }
 
-  // ORDER判定
-  let order = "NO TRADE";
-  if (env === "RISK ON" && dir === "USD WEAK") order = "BUY";
-  if (env === "RISK OFF" && dir === "USD STRONG") order = "SELL";
-  document.getElementById("order").innerText = order;
-}
-
-
-// 🔥 ページ読み込み時に実行
-autoAnalyze();
-
-// 🔥 5秒ごと自動更新
-setInterval(autoAnalyze, 5000);
-
-</script>
-
+    document.getElementById("autoRefresh").addEventListener("change", (e) => {
+      if (e.target.checked) {
+        // Free-tier safety: 15s
+        autoAnalyze();
+        timer = setInterval(autoAnalyze, 15000);
+        setStatus("Auto refresh ON (15s).", "warn");
+      } else {
+        clearInterval(timer);
+        timer = null;
+        setStatus("Auto refresh OFF.", "ok");
+      }
+    });
+  </script>
 </body>
 </html>
