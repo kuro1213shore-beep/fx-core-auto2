@@ -20,6 +20,7 @@ body{
   color:var(--c);
   font-family:monospace;
   text-align:center;
+  transition:.3s ease;
 }
 
 h1{ margin:20px 0; }
@@ -51,22 +52,28 @@ button{
   cursor:pointer;
   margin:10px 0;
 }
+
+/* テーマ切替 */
+body.long-mode{ --c:#ff3b7f; }
+body.short-mode{ --c:#3ba6ff; }
+body.range-mode{ --c:#00ffc3; }
+
 </style>
 </head>
 
-<body>
+<body class="range-mode">
 
 <h1>FX CORE AUTO</h1>
 <div class="wrap">
 
-<!-- ===== PRICE ===== -->
+<!-- PRICE -->
 <div class="box">
   <div class="row"><span>USDJPY</span><span id="usdPrice">--</span></div>
   <div class="row"><span>CHANGE</span><span id="usdChange">--</span></div>
   <div class="row"><span>RSI</span><span id="usdRsi">--</span></div>
 </div>
 
-<!-- ===== MARKET ===== -->
+<!-- MARKET -->
 <div class="box">
   <div class="row"><span>SPX</span><span id="sp">--</span></div>
   <div class="row"><span>VIX</span><span id="vix">--</span></div>
@@ -74,12 +81,15 @@ button{
   <div class="row"><span>DXY</span><span id="dxy">--</span></div>
 </div>
 
-<!-- ===== MODE ===== -->
+<!-- SIGNAL -->
 <div class="box">
-  <div class="row"><span>MARKET MODE</span><span id="mode">--</span></div>
+  <div class="row"><span>ENV</span><span id="env">--</span></div>
+  <div class="row"><span>DIR</span><span id="dir">--</span></div>
+  <div class="row"><span>RSI SIGNAL</span><span id="rsiSignal">--</span></div>
+  <div class="row"><span>ORDER</span><span id="order">--</span></div>
 </div>
 
-<!-- ===== SCORE ===== -->
+<!-- SCORE -->
 <div class="box">
   <div class="row"><span>RISK SCORE</span><span id="riskScore">--</span></div>
   <div class="row"><span>USD SCORE</span><span id="usdScore">--</span></div>
@@ -95,6 +105,8 @@ button{
 <script type="module">
 
 import { calcScore } from './score.js';
+import { analyzeLogic } from './engine.js';
+import { updateUI } from './ui.js';
 
 function fmt(n){
   return (typeof n === "number") ? Number(n).toFixed(3) : "--";
@@ -105,32 +117,34 @@ async function autoAnalyze(){
     const res = await fetch('/api/market',{cache:"no-store"});
     const data = await res.json();
 
-    // ===== PRICE =====
     document.getElementById("usdPrice").innerText = fmt(data.usdjpy?.price);
     document.getElementById("usdChange").innerText = fmt(data.usdjpy?.changePct);
     document.getElementById("usdRsi").innerText = fmt(data.usdjpy?.rsi);
 
-    // ===== MARKET =====
     document.getElementById("sp").innerText = fmt(data.spPct);
     document.getElementById("vix").innerText = fmt(data.vixPct);
     document.getElementById("tlt").innerText = fmt(data.tltPct);
     document.getElementById("dxy").innerText = fmt(data.dxyPct);
 
-    // ===== MODE =====
-    document.getElementById("mode").innerText =
-      data.usdjpy?.marketMode || "RANGE";
-
-    // ===== SCORE =====
-    const { riskScore, usdScore, totalScore } = calcScore(data);
-
-    document.getElementById("riskScore").innerText = riskScore;
-    document.getElementById("usdScore").innerText = usdScore;
-    document.getElementById("totalScore").innerText = totalScore;
+    analyze(data);
 
   }catch(e){
     console.error(e);
     alert("API ERROR");
   }
+}
+
+function analyze(data){
+
+  const { riskScore, usdScore, totalScore } = calcScore(data);
+
+  document.getElementById("riskScore").innerText = riskScore;
+  document.getElementById("usdScore").innerText = usdScore;
+  document.getElementById("totalScore").innerText = totalScore;
+
+  const result = analyzeLogic(data, riskScore, usdScore, totalScore);
+
+  updateUI(result);
 }
 
 window.autoAnalyze = autoAnalyze;
