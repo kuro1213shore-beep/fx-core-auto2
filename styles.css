@@ -149,3 +149,10 @@ iframe{
   border-radius:50%;
   font-size:20px;
 }
+.settingInput{
+  width:90px;
+  padding:6px;
+  border-radius:8px;
+  border:none;
+  text-align:right;
+}
