@@ -18,7 +18,7 @@ export default async function handler(req, res) {
           tickers: [symbol],
           query: { types: [] }
         },
-        columns: ["close", "change"]
+      columns: ["close","change","RSI"]
       };
 
       const r = await fetch(url, {
@@ -34,9 +34,11 @@ export default async function handler(req, res) {
 
     // ===== USDJPY price =====
     const usd = await tvScan("forex", "FX:USDJPY");
-    if (usd) {
-      out.usdjpy.price = usd[0];
-      out.usdjpy.changePct = usd[1];
+　　if (usd) {
+       out.usdjpy.price = usd[0];
+       out.usdjpy.changePct = usd[1];
+      out.usdjpy.rsi = usd[2];
+      
     }
 
     // ===== SPX / VIX / TLT / DXY =====
