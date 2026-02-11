@@ -5,142 +5,30 @@
 <html lang="ja">
 
 <!-- ===================================================== -->
-<!-- 10_HEAD_START -->
+<!-- 10_HEAD -->
 <!-- ===================================================== -->
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>FX CORE AUTO</title>
 
-  <!-- 11_CSS_LINK -->
-  <link rel="stylesheet" href="./styles.css">
+  <!-- 11_STYLE_LOAD -->
+  <link rel="stylesheet" href="./style.css" />
 </head>
 
 <!-- ===================================================== -->
-<!-- 20_BODY_START -->
+<!-- 20_BODY -->
 <!-- ===================================================== -->
 <body class="range-mode">
 
-  <!-- 21_HEADER -->
-  <h1>FX CORE AUTO</h1>
-
-  <div class="wrap">
-
-  <!-- 22_PRICE_BOX -->
-  <div class="card">
-    <div class="row"><span>USDJPY</span><span id="usdPrice">--</span></div>
-    <div class="row"><span>CHANGE</span><span id="usdChange">--</span></div>
-    <div class="row"><span>RSI</span><span id="usdRsi">--</span></div>
-    <div class="muted" id="updatedAt">--</div>
+  <!-- 21_APP_ROOT -->
+  <div id="app">
+    <!-- UIは今まで通りそのまま置く（box群） -->
+    <!-- ※中身は変更なしでOK -->
   </div>
 
-  <!-- 23_MARKET_BOX -->
-  <div class="card">
-    <div class="row"><span>SPX</span><span id="sp">--</span></div>
-    <div class="row"><span>VIX</span><span id="vix">--</span></div>
-    <div class="row"><span>TLT</span><span id="tlt">--</span></div>
-    <div class="row"><span>DXY</span><span id="dxy">--</span></div>
-  </div>
-
-  <!-- 24_MODE_BOX -->
-  <div class="card">
-    <div class="row"><span>MARKET MODE</span><span id="mode">--</span></div>
-  </div>
-
-  <!-- 25_SIGNAL_BOX -->
-  <div class="card">
-    <div class="row"><span>ENV</span><span id="env">--</span></div>
-    <div class="row"><span>DIR</span><span id="dir">--</span></div>
-    <div class="row"><span>RSI SIGNAL</span><span id="rsiSignal">--</span></div>
-    <div class="row"><span>ORDER</span><span id="order">--</span></div>
-  </div>
-
-  <!-- 26_SCORE_BOX -->
-  <div class="card">
-    <div class="row"><span>RISK SCORE</span><span id="riskScore">--</span></div>
-    <div class="row"><span>USD SCORE</span><span id="usdScore">--</span></div>
-    <div class="row"><span>TOTAL SCORE</span><span id="totalScore">--</span></div>
-  </div>
-  <!-- ===================================================== -->
-<!-- 27_SIGNAL_STRENGTH -->
-<!-- ===================================================== -->
-<div class="card">
-  <div class="gaugeWrap">
-    <div class="gaugeFill" id="signalGauge"></div>
-  </div>
-  <div class="gaugeText">
-    <span id="signalPercent">0%</span>
-  </div>
-</div>
-
-  <!-- 27_BUTTON_BOX -->
-  <div class="card btnCard">
-    <button onclick="autoAnalyze()">AUTO ANALYZE</button>
-    <button onclick="saveEntry()">SAVE ENTRY</button>
-  </div>
-
-  <!-- 28_CHART_BOX -->
-  <div class="card">
-    <iframe src="chart.html" loading="lazy"></iframe>
-  </div>
-
-  </div>
-
-<!-- ===================================================== -->
-<!-- 90_SCRIPT_MODULE -->
-<!-- ===================================================== -->
-<script type="module">
-
-  import { calcScore } from "./score.js";
-  import { analyzeLogic } from "./engine.js";
-  import { updateUI } from "./ui.js";
-  import { saveEntry } from "./logs.js";
-
-  function fmt(n){
-    return (typeof n === "number" && Number.isFinite(n)) ? Number(n).toFixed(3) : "--";
-  }
-
-  function setText(id, value){
-    const el = document.getElementById(id);
-    if(el) el.innerText = value;
-  }
-
-  async function autoAnalyze(){
-    try{
-      const res = await fetch("/api/market", { cache:"no-store" });
-      const data = await res.json();
-
-      setText("usdPrice", fmt(data.usdjpy?.price));
-      setText("usdChange", fmt(data.usdjpy?.changePct));
-      setText("usdRsi", fmt(data.usdjpy?.rsi));
-
-      setText("sp", fmt(data.spPct));
-      setText("vix", fmt(data.vixPct));
-      setText("tlt", fmt(data.tltPct));
-      setText("dxy", fmt(data.dxyPct));
-      setText("updatedAt", data.updatedAt || "--");
-
-      const { riskScore, usdScore, totalScore } = calcScore(data);
-
-      setText("riskScore", riskScore);
-      setText("usdScore", usdScore);
-      setText("totalScore", totalScore);
-
-      const result = analyzeLogic(data, riskScore, usdScore, totalScore);
-      setText("mode", result.mode);
-
-      updateUI(result);
-
-    }catch(e){
-      console.error(e);
-      alert("API ERROR");
-    }
-  }
-
-  window.autoAnalyze = autoAnalyze;
-  window.saveEntry = saveEntry;
-
-</script>
+  <!-- 90_MAIN_CONTROLLER -->
+  <script type="module" src="./main.js"></script>
 
 </body>
 </html>
