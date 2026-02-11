@@ -1,47 +1,89 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>Score Settings</title>
-  <link rel="stylesheet" href="styles.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Settings - FX CORE AUTO</title>
+<link rel="stylesheet" href="./styles.css" />
 </head>
+
 <body>
 
-<h2>Trend Weights</h2>
-<input id="trend_spx" type="number" value="1">
-<input id="trend_vix" type="number" value="2">
-<input id="trend_tlt" type="number" value="1">
-<input id="trend_dxy" type="number" value="2">
+<div class="wrap">
+  <h1>SETTINGS</h1>
 
-<h2>Range Weights</h2>
-<input id="range_spx" type="number" value="1">
-<input id="range_vix" type="number" value="1">
-<input id="range_tlt" type="number" value="1">
-<input id="range_dxy" type="number" value="1">
+  <div id="settingsRoot"></div>
 
-<button onclick="save()">SAVE</button>
+  <div class="card btnCard">
+    <button onclick="save()">SAVE</button>
+    <button onclick="location.href='index.html'">BACK</button>
+  </div>
+</div>
 
-<script>
-function save(){
-  const config = {
-    trend:{
-      spx:+trend_spx.value,
-      vix:+trend_vix.value,
-      tlt:+trend_tlt.value,
-      dxy:+trend_dxy.value
-    },
-    range:{
-      spx:+range_spx.value,
-      vix:+range_vix.value,
-      tlt:+range_tlt.value,
-      dxy:+range_dxy.value
-    }
-  };
+<script type="module">
 
-  localStorage.setItem("weights", JSON.stringify(config));
-  alert("Saved");
+import { loadConfig, saveConfig } from "./config.js";
+
+const root = document.getElementById("settingsRoot");
+let config = loadConfig();
+
+/* ======================================== */
+/* UI BUILD */
+/* ======================================== */
+
+function numberInput(label, path, value){
+  return `
+    <div class="row">
+      <span>${label}</span>
+      <input type="number" step="0.01"
+        data-path="${path}"
+        value="${value}"
+        class="settingInput" />
+    </div>
+  `;
 }
-</script>
 
+function buildSection(title, obj, prefix){
+  let html = `<div class="card"><h3>${title}</h3>`;
+  for(const key in obj){
+    if(typeof obj[key] === "object"){
+      html += buildSection(key, obj[key], prefix + "." + key);
+    }else{
+      html += numberInput(key, prefix + "." + key, obj[key]);
+    }
+  }
+  html += "</div>";
+  return html;
+}
+
+root.innerHTML =
+  buildSection("TREND", config.trend, "trend") +
+  buildSection("RANGE", config.range, "range");
+
+/* ======================================== */
+/* SAVE */
+/* ======================================== */
+
+window.save = function(){
+
+  const inputs = document.querySelectorAll(".settingInput");
+
+  inputs.forEach(input=>{
+    const path = input.dataset.path.split(".");
+    let ref = config;
+
+    for(let i=0;i<path.length-1;i++){
+      ref = ref[path[i]];
+    }
+
+    ref[path[path.length-1]] = parseFloat(input.value);
+  });
+
+  saveConfig(config);
+
+  alert("Saved.");
+};
+
+</script>
 </body>
 </html>
