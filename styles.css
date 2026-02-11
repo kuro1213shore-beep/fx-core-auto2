@@ -103,3 +103,30 @@ iframe{
   height:420px;
   border:none;
 }
+/* ===================================================== */
+/* 60_SIGNAL_GAUGE */
+/* ===================================================== */
+
+.gaugeWrap{
+  width:100%;
+  height:16px;
+  background:#0c1526;
+  border-radius:20px;
+  overflow:hidden;
+  box-shadow:inset 0 0 8px rgba(0,0,0,0.8);
+  margin-bottom:10px;
+}
+
+.gaugeFill{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,#3ba6ff,#00ffc3);
+  transition:0.4s ease;
+  box-shadow:0 0 10px rgba(59,166,255,0.7);
+}
+
+.gaugeText{
+  font-size:22px;
+  font-weight:800;
+  letter-spacing:1px;
+}
