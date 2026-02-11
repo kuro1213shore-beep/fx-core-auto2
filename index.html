@@ -14,18 +14,15 @@
   --danger:#ff3b7f;
 }
 
+/* ===== BASE ===== */
 body{
   margin:0;
   background:var(--bg);
   color:var(--c);
   font-family:monospace;
   text-align:center;
-  transition:0.3s;
+  transition:0.3s ease;
 }
-
-body.up{ --c:#00ff88; }
-body.down{ --c:#00b3ff; }
-body.range{ --c:#00ffc3; }
 
 h1{ margin:20px 0; }
 
@@ -40,6 +37,7 @@ h1{ margin:20px 0; }
   margin:12px 0;
   padding:12px;
   background:var(--box);
+  transition:0.3s ease;
 }
 
 .row{
@@ -56,13 +54,35 @@ button{
   cursor:pointer;
   margin:10px 5px;
 }
+
+/* ===== THEME ===== */
+body.long-mode{
+  --c:#ff3b7f;
+  --border:2px solid #ff3b7f;
+}
+
+body.short-mode{
+  --c:#3ba6ff;
+  --border:2px solid #3ba6ff;
+}
+
+body.range-mode{
+  --c:#00ffc3;
+  --border:2px solid #00ffc3;
+}
+
+/* ===== CHART ===== */
+iframe{
+  border:0;
+  width:100%;
+  height:420px;
+}
 </style>
 </head>
 
-<body>
+<body class="range-mode">
 
 <h1>FX CORE AUTO</h1>
-
 <div class="wrap">
 
 <div class="box">
@@ -93,48 +113,24 @@ button{
   <button onclick="saveEntry()">SAVE ENTRY</button>
 </div>
 
+<div class="box">
+  <iframe src="chart.html"></iframe>
 </div>
 
-<script>
+</div>
+
+<script type="module">
+
+import { calcScore } from './score.js';
+import { analyzeLogic } from './engine.js';
+import { updateUI } from './ui.js';
+import { saveEntry } from './logs.js';
 
 function fmt(n){
   return (typeof n === "number") ? Number(n).toFixed(3) : "--";
 }
 
-function applyTheme(mode){
-  document.body.classList.remove("up","down","range");
-  if(mode==="UPTREND") document.body.classList.add("up");
-  else if(mode==="DOWNTREND") document.body.classList.add("down");
-  else document.body.classList.add("range");
-}
-
-function calcScores(data){
-
-  let riskScore = 0;
-
-  if(data.spPct > 0) riskScore++;
-  if(data.spPct < 0) riskScore--;
-
-  if(data.vixPct < 0) riskScore++;
-  if(data.vixPct > 0) riskScore--;
-
-  if(data.tltPct < 0) riskScore++;
-  if(data.tltPct > 0) riskScore--;
-
-  let usdScore = 0;
-
-  if(data.dxyPct > 0) usdScore++;
-  if(data.dxyPct < 0) usdScore--;
-
-  return {
-    riskScore,
-    usdScore,
-    totalScore: riskScore + usdScore
-  };
-}
-
 async function autoAnalyze(){
-
   try{
     const res = await fetch('/api/market',{cache:"no-store"});
     const data = await res.json();
@@ -148,15 +144,17 @@ async function autoAnalyze(){
     document.getElementById("tlt").innerText = fmt(data.tltPct);
     document.getElementById("dxy").innerText = fmt(data.dxyPct);
 
-    const mode = data.usdjpy?.marketMode || "RANGE";
-    document.getElementById("mode").innerText = mode;
-    applyTheme(mode);
+    document.getElementById("mode").innerText =
+      data.usdjpy?.marketMode || "RANGE";
 
-    const scores = calcScores(data);
+    const { riskScore, usdScore, totalScore } = calcScore(data);
 
-    document.getElementById("riskScore").innerText = scores.riskScore;
-    document.getElementById("usdScore").innerText = scores.usdScore;
-    document.getElementById("totalScore").innerText = scores.totalScore;
+    document.getElementById("riskScore").innerText = riskScore;
+    document.getElementById("usdScore").innerText = usdScore;
+    document.getElementById("totalScore").innerText = totalScore;
+
+    const result = analyzeLogic(data, riskScore, usdScore, totalScore);
+    updateUI(result);
 
   }catch(e){
     console.error(e);
@@ -164,9 +162,8 @@ async function autoAnalyze(){
   }
 }
 
-function saveEntry(){
-  alert("Saved ✔");
-}
+window.autoAnalyze = autoAnalyze;
+window.saveEntry = saveEntry;
 
 </script>
 
