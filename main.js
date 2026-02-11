@@ -30,12 +30,15 @@ async function autoAnalyze(){
     setText("dxy", fmt(data.dxyPct));
     setText("updatedAt", data.updatedAt || "--");
 
-    /* 22_SCORE */
-    const { riskScore, usdScore, totalScore } = calcScore(data);
+/* 22B_GAUGE */
+const max = 4; // 今のスコア最大値（-4〜+4想定）
+const percent = Math.round((Math.abs(totalScore) / max) * 100);
 
-    setText("riskScore", riskScore);
-    setText("usdScore", usdScore);
-    setText("totalScore", totalScore);
+const fill = document.getElementById("gaugeFill");
+const text = document.getElementById("gaugeText");
+
+if (fill) fill.style.width = percent + "%";
+if (text) text.innerText = percent + "%";
 
     /* 23_LOGIC */
     const result = analyzeLogic(data, riskScore, usdScore, totalScore);
