@@ -4,23 +4,28 @@ export function analyzeLogic(data, riskScore, usdScore, totalScore){
 
   const mode = data.usdjpy?.marketMode || "RANGE";
 
+  // モード別設定を取得
+  const cfg = (mode === "UPTREND" || mode === "DOWNTREND")
+    ? CONFIG.trend
+    : CONFIG.range;
+
   /* ===== ENV ===== */
   let env = "MIXED";
 
-  if(riskScore >= CONFIG.envThresholdHigh){
+  if(riskScore >= cfg.riskThreshold){
     env = "RISK ON";
   }
-  else if(riskScore <= CONFIG.envThresholdLow){
+  else if(riskScore <= -cfg.riskThreshold){
     env = "RISK OFF";
   }
 
   /* ===== DIR ===== */
   let dir = "NEUTRAL";
 
-  if(usdScore > CONFIG.usdStrongThreshold){
+  if(usdScore > 0){
     dir = "USD STRONG";
   }
-  else if(usdScore < -CONFIG.usdStrongThreshold){
+  else if(usdScore < 0){
     dir = "USD WEAK";
   }
 
@@ -29,28 +34,28 @@ export function analyzeLogic(data, riskScore, usdScore, totalScore){
   const rsi = data.usdjpy?.rsi;
 
   if(typeof rsi === "number"){
-    if(rsi >= CONFIG.rsiOverbought){
+    if(rsi >= cfg.rsiOverbought){
       rsiSignal = "OVERBOUGHT";
     }
-    else if(rsi <= CONFIG.rsiOversold){
+    else if(rsi <= cfg.rsiOversold){
       rsiSignal = "OVERSOLD";
     }
   }
 
-  /* ===== ORDER LOGIC ===== */
+  /* ===== ORDER ===== */
   let order = "NO TRADE";
 
-  if(mode === "DOWNREND" || mode === "DOWNTRAND" || mode === "DOWNTREND"){
-    if(totalScore <= -1 && rsiSignal !== "OVERSOLD"){
+  if(mode === "DOWNTREND"){
+    if(totalScore <= -cfg.minTotalScore && rsiSignal !== "OVERSOLD"){
       order = "SHORT (trend)";
     }
   }
   else if(mode === "UPTREND"){
-    if(totalScore >= 1 && rsiSignal !== "OVERBOUGHT"){
+    if(totalScore >= cfg.minTotalScore && rsiSignal !== "OVERBOUGHT"){
       order = "LONG (trend)";
     }
   }
-  else{
+  else{ // RANGE
     if(env === "RISK OFF" && rsiSignal === "OVERSOLD"){
       order = "LONG (counter)";
     }
