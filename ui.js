@@ -21,4 +21,11 @@ function applyTheme(mode){
   else{
     document.body.classList.add("range-mode");
   }
+// ===== SIGNAL STRENGTH =====
+const percent = Math.min(100, Math.max(0, (result.totalScore + 5) * 10));
+const gauge = document.getElementById("signalGauge");
+const text = document.getElementById("signalPercent");
+
+if(gauge) gauge.style.width = percent + "%";
+if(text) text.innerText = percent + "%";
 }
