@@ -156,3 +156,30 @@ iframe{
   border:none;
   text-align:right;
 }
+
+/* ===================================================== */
+/* 80_SCORE_LAYOUT */
+/* ===================================================== */
+
+.scoreFlex{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:20px;
+}
+
+.scoreLeft{
+  flex:1;
+}
+
+.gaugeRight{
+  width:160px;
+  text-align:center;
+}
+
+.orderText{
+  margin-top:8px;
+  font-weight:700;
+  font-size:14px;
+  opacity:0.8;
+}
