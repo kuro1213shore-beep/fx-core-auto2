@@ -69,14 +69,26 @@
       <div class="row"><span>ORDER</span><span id="order">--</span></div>
     </div>
 
-    <!-- ===================================================== -->
-    <!-- 25_SCORE_CARD -->
-    <!-- ===================================================== -->
-    <div class="card">
-      <div class="row"><span>RISK SCORE</span><span id="riskScore">--</span></div>
-      <div class="row"><span>USD SCORE</span><span id="usdScore">--</span></div>
-      <div class="row"><span>TOTAL SCORE</span><span id="totalScore">--</span></div>
+ <!-- ===================================================== -->
+<!-- 25_SCORE_GAUGE_CARD -->
+<!-- ===================================================== -->
+<div class="card scoreFlex">
+
+  <div class="scoreLeft">
+    <div class="row"><span>RISK SCORE</span><span id="riskScore">--</span></div>
+    <div class="row"><span>USD SCORE</span><span id="usdScore">--</span></div>
+    <div class="row"><span>TOTAL SCORE</span><span id="totalScore">--</span></div>
+  </div>
+
+  <div class="gaugeRight">
+    <div class="gaugeWrap">
+      <div class="gaugeFill" id="gaugeFill"></div>
     </div>
+    <div class="gaugeText" id="gaugeText">0%</div>
+    <div class="orderText" id="order">--</div>
+  </div>
+
+</div>
 
     <!-- ===================================================== -->
     <!-- 26_GAUGE_CARD -->
