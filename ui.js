@@ -1,32 +1,19 @@
-/* ===================================================== */
-/* 00_TEXT_HELPER */
-/* ===================================================== */
-
+/* 00_SET_TEXT */
 export function setText(id, value){
   const el = document.getElementById(id);
   if(el) el.innerText = value;
 }
 
-/* ===================================================== */
-/* 10_THEME_CONTROL */
-/* ===================================================== */
-
+/* 10_THEME */
 function setTheme(mode){
-  document.body.classList.remove(
-    "long-mode",
-    "short-mode",
-    "range-mode"
-  );
+  document.body.classList.remove("long-mode","short-mode","range-mode");
 
-  if(mode === "LONG")  document.body.classList.add("long-mode");
-  if(mode === "SHORT") document.body.classList.add("short-mode");
-  if(mode === "RANGE") document.body.classList.add("range-mode");
+  if(mode === "LONG") document.body.classList.add("long-mode");
+  else if(mode === "SHORT") document.body.classList.add("short-mode");
+  else document.body.classList.add("range-mode");
 }
 
-/* ===================================================== */
-/* 20_MAIN_UI_UPDATE */
-/* ===================================================== */
-
+/* 20_UPDATE */
 export function updateUI(result){
 
   setText("env", result.env);
@@ -35,11 +22,4 @@ export function updateUI(result){
   setText("order", result.order);
 
   setTheme(result.mode);
-
-  /* ---------- 21_GAUGE ---------- */
-  const percent = result.confidence || 0;
-  const gauge = document.getElementById("confidenceGauge");
-  if(gauge){
-    gauge.style.width = percent + "%";
-  }
 }
