@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Score Settings</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<h2>Trend Weights</h2>
+<input id="trend_spx" type="number" value="1">
+<input id="trend_vix" type="number" value="2">
+<input id="trend_tlt" type="number" value="1">
+<input id="trend_dxy" type="number" value="2">
+
+<h2>Range Weights</h2>
+<input id="range_spx" type="number" value="1">
+<input id="range_vix" type="number" value="1">
+<input id="range_tlt" type="number" value="1">
+<input id="range_dxy" type="number" value="1">
+
+<button onclick="save()">SAVE</button>
+
+<script>
+function save(){
+  const config = {
+    trend:{
+      spx:+trend_spx.value,
+      vix:+trend_vix.value,
+      tlt:+trend_tlt.value,
+      dxy:+trend_dxy.value
+    },
+    range:{
+      spx:+range_spx.value,
+      vix:+range_vix.value,
+      tlt:+range_tlt.value,
+      dxy:+range_dxy.value
+    }
+  };
+
+  localStorage.setItem("weights", JSON.stringify(config));
+  alert("Saved");
+}
+</script>
+
+</body>
+</html>
