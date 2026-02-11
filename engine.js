@@ -1,40 +1,69 @@
+import { CONFIG } from "./config.js";
+
 export function analyzeLogic(data, riskScore, usdScore, totalScore){
 
   const mode = data.usdjpy?.marketMode || "RANGE";
 
-  let env="MIXED";
-  if(riskScore>=2) env="RISK ON";
-  if(riskScore<=-2) env="RISK OFF";
+  /* ===== ENV ===== */
+  let env = "MIXED";
 
-  let dir="NEUTRAL";
-  if(usdScore>0) dir="USD STRONG";
-  if(usdScore<0) dir="USD WEAK";
+  if(riskScore >= CONFIG.envThresholdHigh){
+    env = "RISK ON";
+  }
+  else if(riskScore <= CONFIG.envThresholdLow){
+    env = "RISK OFF";
+  }
 
-  let rsiSignal="NORMAL";
-  const rsi=data.usdjpy?.rsi;
-  if(rsi>=70) rsiSignal="OVERBOUGHT";
-  if(rsi<=30) rsiSignal="OVERSOLD";
+  /* ===== DIR ===== */
+  let dir = "NEUTRAL";
 
-  let order="NO TRADE";
+  if(usdScore > CONFIG.usdStrongThreshold){
+    dir = "USD STRONG";
+  }
+  else if(usdScore < -CONFIG.usdStrongThreshold){
+    dir = "USD WEAK";
+  }
 
-  if(mode==="DOWNTREND"){
-    if(totalScore<=-1 && rsiSignal!=="OVERSOLD"){
-      order="SHORT (trend)";
+  /* ===== RSI SIGNAL ===== */
+  let rsiSignal = "NORMAL";
+  const rsi = data.usdjpy?.rsi;
+
+  if(typeof rsi === "number"){
+    if(rsi >= CONFIG.rsiOverbought){
+      rsiSignal = "OVERBOUGHT";
+    }
+    else if(rsi <= CONFIG.rsiOversold){
+      rsiSignal = "OVERSOLD";
     }
   }
-  else if(mode==="UPTREND"){
-    if(totalScore>=1 && rsiSignal!=="OVERBOUGHT"){
-      order="LONG (trend)";
+
+  /* ===== ORDER LOGIC ===== */
+  let order = "NO TRADE";
+
+  if(mode === "DOWNREND" || mode === "DOWNTRAND" || mode === "DOWNTREND"){
+    if(totalScore <= -1 && rsiSignal !== "OVERSOLD"){
+      order = "SHORT (trend)";
+    }
+  }
+  else if(mode === "UPTREND"){
+    if(totalScore >= 1 && rsiSignal !== "OVERBOUGHT"){
+      order = "LONG (trend)";
     }
   }
   else{
-    if(env==="RISK OFF" && rsiSignal==="OVERSOLD"){
-      order="LONG (counter)";
+    if(env === "RISK OFF" && rsiSignal === "OVERSOLD"){
+      order = "LONG (counter)";
     }
-    else if(env==="RISK ON" && rsiSignal==="OVERBOUGHT"){
-      order="SHORT (counter)";
+    else if(env === "RISK ON" && rsiSignal === "OVERBOUGHT"){
+      order = "SHORT (counter)";
     }
   }
 
-  return { mode, env, dir, rsiSignal, order };
+  return {
+    mode,
+    env,
+    dir,
+    rsiSignal,
+    order
+  };
 }
