@@ -1,252 +1,248 @@
-<!-- ===================================================== -->
-<!-- 00_DOCUMENT_START -->
-<!-- ===================================================== -->
 <!DOCTYPE html>
 <html lang="ja">
-
-<!-- ===================================================== -->
-<!-- 10_HEAD_START -->
-<!-- ===================================================== -->
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>FX CORE AUTO</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>FX CORE AUTO</title>
 
-<!-- ===================================================== -->
-<!-- 11_STYLE_ROOT -->
-<!-- ===================================================== -->
-  <style>
-    :root{
-      --c:#00ffc3;
-      --bg:#000;
-      --box:rgba(0,0,0,0.55);
-      --border:2px solid var(--c);
-      --danger:#ff3b7f;
-    }
+<style>
+:root{
+  --bg:#0f172a;
+  --card:#111827;
+  --border:1px solid rgba(255,255,255,0.08);
+  --accent:#3ba6ff;
+  --danger:#ff3b7f;
+  --success:#22c55e;
+  --text:#e5e7eb;
+  --muted:#94a3b8;
+}
 
-<!-- ===================================================== -->
-<!-- 12_BASE_LAYOUT -->
-<!-- ===================================================== -->
-    body{
-      margin:0;
-      background:var(--bg);
-      color:var(--c);
-      font-family:monospace;
-      text-align:center;
-      transition:0.25s ease;
-    }
-    h1{ margin:22px 0 18px; letter-spacing:2px; }
+body{
+  margin:0;
+  background:linear-gradient(180deg,#0f172a,#0b1120);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,system-ui;
+  text-align:center;
+}
 
-    .wrap{
-      width:92%;
-      max-width:560px;
-      margin:0 auto 40px;
-    }
+h1{
+  margin:24px 0 18px;
+  font-weight:700;
+  letter-spacing:2px;
+}
 
-<!-- ===================================================== -->
-<!-- 13_BOX_SYSTEM -->
-<!-- ===================================================== -->
-    .box{
-      border:var(--border);
-      margin:14px 0;
-      padding:14px;
-      background:var(--box);
-      transition:0.25s ease;
-    }
+.wrap{
+  width:92%;
+  max-width:520px;
+  margin:0 auto 50px;
+}
 
-    .row{
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      white-space:nowrap;
-      font-size:18px;
-      line-height:1.35;
-    }
+.box{
+  background:var(--card);
+  border-radius:16px;
+  padding:16px;
+  margin:14px 0;
+  box-shadow:0 15px 30px rgba(0,0,0,0.4);
+  border:var(--border);
+}
 
-    .muted{
-      opacity:0.75;
-      font-size:12px;
-      margin-top:8px;
-      text-align:right;
-    }
+.row{
+  display:flex;
+  justify-content:space-between;
+  font-size:16px;
+  padding:4px 0;
+}
 
-<!-- ===================================================== -->
-<!-- 14_BUTTON_SYSTEM -->
-<!-- ===================================================== -->
-    .btnRow{
-      display:flex;
-      justify-content:space-between;
-      gap:14px;
-      margin:8px 0;
-    }
+.muted{
+  color:var(--muted);
+  font-size:12px;
+  text-align:right;
+  margin-top:8px;
+}
 
-    button{
-      flex:1;
-      background:var(--danger);
-      color:#000;
-      padding:14px 10px;
-      border:none;
-      font-weight:900;
-      cursor:pointer;
-      letter-spacing:1px;
-      font-size:16px;
-    }
+.btnRow{
+  display:flex;
+  gap:12px;
+}
 
-    iframe{
-      border:0;
-      width:100%;
-      height:420px;
-    }
+button{
+  flex:1;
+  padding:14px;
+  border-radius:12px;
+  border:none;
+  font-weight:700;
+  font-size:15px;
+  cursor:pointer;
+}
 
-<!-- ===================================================== -->
-<!-- 15_THEME_SYSTEM -->
-<!-- ===================================================== -->
-    body.long-mode{
-      --c:#ff3b7f;
-      --border:2px solid #ff3b7f;
-    }
-    body.short-mode{
-      --c:#3ba6ff;
-      --border:2px solid #3ba6ff;
-    }
-    body.range-mode{
-      --c:#00ffc3;
-      --border:2px solid #00ffc3;
-    }
-  </style>
+.primary{
+  background:var(--danger);
+  color:#000;
+}
+
+.secondary{
+  background:var(--accent);
+  color:#000;
+}
+
+.signalGauge{
+  margin:10px 0;
+}
+
+iframe{
+  border:0;
+  width:100%;
+  height:420px;
+  border-radius:14px;
+}
+</style>
 </head>
 
-<!-- ===================================================== -->
-<!-- 20_BODY_START -->
-<!-- ===================================================== -->
-<body class="range-mode">
+<body>
 
-  <h1>FX CORE AUTO</h1>
-  <div class="wrap">
+<h1>FX CORE AUTO</h1>
 
-<!-- ===================================================== -->
-<!-- 21_PRICE_BOX -->
-<!-- ===================================================== -->
-    <div class="box">
-      <div class="row"><span>USDJPY</span><span id="usdPrice">--</span></div>
-      <div class="row"><span>CHANGE</span><span id="usdChange">--</span></div>
-      <div class="row"><span>RSI</span><span id="usdRsi">--</span></div>
-      <div class="muted" id="updatedAt">--</div>
-    </div>
+<div class="wrap">
 
-<!-- ===================================================== -->
-<!-- 22_MARKET_BOX -->
-<!-- ===================================================== -->
-    <div class="box">
-      <div class="row"><span>SPX</span><span id="sp">--</span></div>
-      <div class="row"><span>VIX</span><span id="vix">--</span></div>
-      <div class="row"><span>TLT</span><span id="tlt">--</span></div>
-      <div class="row"><span>DXY</span><span id="dxy">--</span></div>
-    </div>
+<!-- PRICE -->
+<div class="box">
+  <div class="row"><span>USDJPY</span><span id="usdPrice">--</span></div>
+  <div class="row"><span>CHANGE</span><span id="usdChange">--</span></div>
+  <div class="row"><span>RSI</span><span id="usdRsi">--</span></div>
+  <div class="muted" id="updatedAt">--</div>
+</div>
 
-<!-- ===================================================== -->
-<!-- 23_MODE_BOX -->
-<!-- ===================================================== -->
-    <div class="box">
-      <div class="row"><span>MARKET MODE</span><span id="mode">--</span></div>
-    </div>
+<!-- MARKET -->
+<div class="box">
+  <div class="row"><span>SPX</span><span id="sp">--</span></div>
+  <div class="row"><span>VIX</span><span id="vix">--</span></div>
+  <div class="row"><span>TLT</span><span id="tlt">--</span></div>
+  <div class="row"><span>DXY</span><span id="dxy">--</span></div>
+</div>
 
-<!-- ===================================================== -->
-<!-- 24_SIGNAL_BOX -->
-<!-- ===================================================== -->
-    <div class="box">
-      <div class="row"><span>ENV</span><span id="env">--</span></div>
-      <div class="row"><span>DIR</span><span id="dir">--</span></div>
-      <div class="row"><span>RSI SIGNAL</span><span id="rsiSignal">--</span></div>
-      <div class="row"><span>ORDER</span><span id="order">--</span></div>
-    </div>
+<!-- MODE -->
+<div class="box">
+  <div class="row"><span>MARKET MODE</span><span id="mode">--</span></div>
+  <div class="row"><span>ENV</span><span id="env">--</span></div>
+  <div class="row"><span>DIR</span><span id="dir">--</span></div>
+</div>
 
-<!-- ===================================================== -->
-<!-- 25_SCORE_BOX -->
-<!-- ===================================================== -->
-    <div class="box">
-      <div class="row"><span>RISK SCORE</span><span id="riskScore">--</span></div>
-      <div class="row"><span>USD SCORE</span><span id="usdScore">--</span></div>
-      <div class="row"><span>TOTAL SCORE</span><span id="totalScore">--</span></div>
-    </div>
+<!-- SIGNAL -->
+<div class="box">
+  <div class="row"><span>RSI SIGNAL</span><span id="rsiSignal">--</span></div>
+  <div class="row"><span>ORDER</span><span id="order">--</span></div>
 
-<!-- ===================================================== -->
-<!-- 26_BUTTON_BOX -->
-<!-- ===================================================== -->
-    <div class="box">
-      <div class="btnRow">
-        <button onclick="autoAnalyze()">AUTO ANALYZE</button>
-        <button onclick="saveEntry()">SAVE ENTRY</button>
-      </div>
-    </div>
-
-<!-- ===================================================== -->
-<!-- 27_CHART_BOX -->
-<!-- ===================================================== -->
-    <div class="box">
-      <iframe src="chart.html" loading="lazy"></iframe>
-    </div>
-
+  <div class="signalGauge">
+    <canvas id="strengthGauge" width="160" height="160"></canvas>
   </div>
+</div>
 
-<!-- ===================================================== -->
-<!-- 90_SCRIPT_MODULE -->
-<!-- ===================================================== -->
-  <script type="module">
+<!-- SCORE -->
+<div class="box">
+  <div class="row"><span>RISK SCORE</span><span id="riskScore">--</span></div>
+  <div class="row"><span>USD SCORE</span><span id="usdScore">--</span></div>
+  <div class="row"><span>TOTAL SCORE</span><span id="totalScore">--</span></div>
+</div>
 
-<!-- ===== 91_IMPORTS ===== -->
-    import { calcScore } from "./score.js";
-    import { analyzeLogic } from "./engine.js";
-    import { updateUI } from "./ui.js";
-    import { saveEntry } from "./logs.js";
+<!-- BUTTONS -->
+<div class="box">
+  <div class="btnRow">
+    <button class="primary" onclick="autoAnalyze()">AUTO ANALYZE</button>
+    <button class="secondary" onclick="saveEntry()">SAVE ENTRY</button>
+  </div>
+</div>
 
-<!-- ===== 92_UTILS ===== -->
-    function fmt(n){
-      return (typeof n === "number" && Number.isFinite(n)) ? Number(n).toFixed(3) : "--";
-    }
+<!-- CHART -->
+<div class="box">
+  <iframe src="chart.html" loading="lazy"></iframe>
+</div>
 
-    function setText(id, value){
-      const el = document.getElementById(id);
-      if(el) el.innerText = value;
-    }
+</div>
 
-<!-- ===== 93_ANALYZE_CORE ===== -->
-    async function autoAnalyze(){
-      try{
-        const res = await fetch("/api/market", { cache:"no-store" });
-        if(!res.ok) throw new Error("API HTTP " + res.status);
-        const data = await res.json();
+<script type="module">
+import { calcScore } from "./score.js";
+import { analyzeLogic } from "./engine.js";
+import { updateUI } from "./ui.js";
+import { saveEntry } from "./logs.js";
 
-        setText("usdPrice",  fmt(data.usdjpy?.price));
-        setText("usdChange", fmt(data.usdjpy?.changePct));
-        setText("usdRsi",    fmt(data.usdjpy?.rsi));
+function fmt(n){
+  return (typeof n === "number" && Number.isFinite(n)) ? Number(n).toFixed(3) : "--";
+}
 
-        setText("sp",  fmt(data.spPct));
-        setText("vix", fmt(data.vixPct));
-        setText("tlt", fmt(data.tltPct));
-        setText("dxy", fmt(data.dxyPct));
-        setText("updatedAt", data.updatedAt || "--");
+function setText(id,value){
+  const el=document.getElementById(id);
+  if(el) el.innerText=value;
+}
 
-        const { riskScore, usdScore, totalScore } = calcScore(data);
-        setText("riskScore", riskScore);
-        setText("usdScore", usdScore);
-        setText("totalScore", totalScore);
+function drawGauge(percent){
+  const canvas=document.getElementById("strengthGauge");
+  const ctx=canvas.getContext("2d");
+  ctx.clearRect(0,0,160,160);
 
-        const result = analyzeLogic(data, riskScore, usdScore, totalScore);
-        setText("mode", result.mode || data.usdjpy?.marketMode || "RANGE");
-        updateUI(result);
+  const center=80;
+  const radius=60;
+  const start=Math.PI;
+  const end=Math.PI+(Math.PI*(percent/100));
 
-      }catch(e){
-        console.error(e);
-        alert("API ERROR");
-      }
-    }
+  ctx.lineWidth=10;
+  ctx.strokeStyle="#1f2937";
+  ctx.beginPath();
+  ctx.arc(center,center,radius,Math.PI,2*Math.PI);
+  ctx.stroke();
 
-<!-- ===== 94_GLOBAL_BIND ===== -->
-    window.autoAnalyze = autoAnalyze;
-    window.saveEntry = saveEntry;
+  ctx.strokeStyle="#3ba6ff";
+  ctx.beginPath();
+  ctx.arc(center,center,radius,start,end);
+  ctx.stroke();
 
-  </script>
+  ctx.fillStyle="#fff";
+  ctx.font="20px sans-serif";
+  ctx.textAlign="center";
+  ctx.fillText(percent+"%",center,90);
+}
+
+async function autoAnalyze(){
+  try{
+    const res=await fetch("/api/market",{cache:"no-store"});
+    if(!res.ok) throw new Error("API ERROR");
+    const data=await res.json();
+
+    setText("usdPrice",fmt(data.usdjpy?.price));
+    setText("usdChange",fmt(data.usdjpy?.changePct));
+    setText("usdRsi",fmt(data.usdjpy?.rsi));
+
+    setText("sp",fmt(data.spPct));
+    setText("vix",fmt(data.vixPct));
+    setText("tlt",fmt(data.tltPct));
+    setText("dxy",fmt(data.dxyPct));
+    setText("updatedAt",data.updatedAt||"--");
+
+    const {riskScore,usdScore,totalScore}=calcScore(data);
+    setText("riskScore",riskScore);
+    setText("usdScore",usdScore);
+    setText("totalScore",totalScore);
+
+    const result=analyzeLogic(data,riskScore,usdScore,totalScore);
+
+    setText("mode",result.mode||data.usdjpy?.marketMode||"RANGE");
+    setText("env",result.env||"--");
+    setText("dir",result.dir||"--");
+    setText("rsiSignal",result.rsiSignal||"--");
+    setText("order",result.order||"--");
+
+    drawGauge(Math.min(Math.max((totalScore+5)*10,0),100));
+
+    updateUI(result);
+
+  }catch(e){
+    console.error(e);
+    alert("API ERROR");
+  }
+}
+
+window.autoAnalyze=autoAnalyze;
+window.saveEntry=saveEntry;
+</script>
 
 </body>
 </html>
