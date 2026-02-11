@@ -1,131 +1,69 @@
-<!-- ===================================================== -->
-<!-- 00_DOCUMENT_START -->
-<!-- ===================================================== -->
+<!-- 00_DOCUMENT -->
 <!DOCTYPE html>
 <html lang="ja">
 
-<!-- ===================================================== -->
 <!-- 10_HEAD -->
-<!-- ===================================================== -->
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>FX CORE AUTO</title>
 
-  <!-- 11_STYLE_LOAD -->
+  <!-- 11_STYLE -->
   <link rel="stylesheet" href="./style.css">
 </head>
 
-<!-- ===================================================== -->
 <!-- 20_BODY -->
-<!-- ===================================================== -->
 <body class="range-mode">
 
-<!-- ===================================================== -->
-<!-- 21_APP_ROOT -->
-<!-- ===================================================== -->
-<div id="app">
+<!-- 21_APP -->
+<div class="wrap">
 
-  <!-- 22_TITLE -->
   <h1>FX CORE AUTO</h1>
 
-  <div class="wrap">
-
-    <!-- ================================================= -->
-    <!-- 30_PRICE_BOX -->
-    <!-- ================================================= -->
-    <div class="card">
-      <div class="row">
-        <span>USDJPY</span>
-        <span id="usdPrice">--</span>
-      </div>
-      <div class="row">
-        <span>CHANGE</span>
-        <span id="usdChange">--</span>
-      </div>
-      <div class="row">
-        <span>RSI</span>
-        <span id="usdRsi">--</span>
-      </div>
-      <div class="muted" id="updatedAt">--</div>
-    </div>
-
-    <!-- ================================================= -->
-    <!-- 40_MARKET_BOX -->
-    <!-- ================================================= -->
-    <div class="card">
-      <div class="row"><span>SPX</span><span id="sp">--</span></div>
-      <div class="row"><span>VIX</span><span id="vix">--</span></div>
-      <div class="row"><span>TLT</span><span id="tlt">--</span></div>
-      <div class="row"><span>DXY</span><span id="dxy">--</span></div>
-    </div>
-
-    <!-- ================================================= -->
-    <!-- 50_MODE_BOX -->
-    <!-- ================================================= -->
-    <div class="card">
-      <div class="row">
-        <span>MARKET MODE</span>
-        <span id="mode">--</span>
-      </div>
-    </div>
-
-    <!-- ================================================= -->
-    <!-- 60_SIGNAL_BOX -->
-    <!-- ================================================= -->
-    <div class="card">
-      <div class="row"><span>ENV</span><span id="env">--</span></div>
-      <div class="row"><span>DIR</span><span id="dir">--</span></div>
-      <div class="row"><span>RSI SIGNAL</span><span id="rsiSignal">--</span></div>
-      <div class="row"><span>ORDER</span><span id="order">--</span></div>
-    </div>
-
-    <!-- ================================================= -->
-    <!-- 70_SCORE_BOX -->
-    <!-- ================================================= -->
-    <div class="card">
-      <div class="row"><span>RISK SCORE</span><span id="riskScore">--</span></div>
-      <div class="row"><span>USD SCORE</span><span id="usdScore">--</span></div>
-      <div class="row"><span>TOTAL SCORE</span><span id="totalScore">--</span></div>
-    </div>
-
-    <!-- ================================================= -->
-    <!-- 80_GAUGE -->
-    <!-- ================================================= -->
-    <div class="card center">
-      <div class="gaugeWrap">
-        <div class="gaugeBar">
-          <div id="gaugeFill" class="gaugeFill"></div>
-        </div>
-        <div id="gaugeText" class="gaugeText">0%</div>
-      </div>
-    </div>
-
-    <!-- ================================================= -->
-    <!-- 90_BUTTONS -->
-    <!-- ================================================= -->
-    <div class="card buttonCard">
-      <button id="analyzeBtn" class="btnPrimary">
-        AUTO ANALYZE
-      </button>
-      <button id="saveBtn" class="btnSecondary">
-        SAVE ENTRY
-      </button>
-    </div>
-
-    <!-- ================================================= -->
-    <!-- 100_CHART -->
-    <!-- ================================================= -->
-    <div class="card">
-      <iframe src="chart.html" loading="lazy"></iframe>
-    </div>
-
+  <!-- 22_PRICE -->
+  <div class="box">
+    <div class="row"><span>USDJPY</span><span id="usdPrice">--</span></div>
+    <div class="row"><span>CHANGE</span><span id="usdChange">--</span></div>
+    <div class="row"><span>RSI</span><span id="usdRsi">--</span></div>
+    <div class="row"><span id="updatedAt">--</span></div>
   </div>
+
+  <!-- 23_MARKET -->
+  <div class="box">
+    <div class="row"><span>SPX</span><span id="sp">--</span></div>
+    <div class="row"><span>VIX</span><span id="vix">--</span></div>
+    <div class="row"><span>TLT</span><span id="tlt">--</span></div>
+    <div class="row"><span>DXY</span><span id="dxy">--</span></div>
+  </div>
+
+  <!-- 24_MODE -->
+  <div class="box">
+    <div class="row"><span>MARKET MODE</span><span id="mode">--</span></div>
+  </div>
+
+  <!-- 25_SIGNAL -->
+  <div class="box">
+    <div class="row"><span>ENV</span><span id="env">--</span></div>
+    <div class="row"><span>DIR</span><span id="dir">--</span></div>
+    <div class="row"><span>RSI SIGNAL</span><span id="rsiSignal">--</span></div>
+    <div class="row"><span>ORDER</span><span id="order">--</span></div>
+  </div>
+
+  <!-- 26_SCORE -->
+  <div class="box">
+    <div class="row"><span>RISK SCORE</span><span id="riskScore">--</span></div>
+    <div class="row"><span>USD SCORE</span><span id="usdScore">--</span></div>
+    <div class="row"><span>TOTAL SCORE</span><span id="totalScore">--</span></div>
+  </div>
+
+  <!-- 27_BUTTON -->
+  <div class="box">
+    <button onclick="autoAnalyze()">AUTO ANALYZE</button>
+  </div>
+
 </div>
 
-<!-- ===================================================== -->
-<!-- 200_MAIN_CONTROLLER -->
-<!-- ===================================================== -->
+<!-- 90_MAIN -->
 <script type="module" src="./main.js"></script>
 
 </body>
