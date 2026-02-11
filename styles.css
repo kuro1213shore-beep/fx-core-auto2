@@ -130,3 +130,22 @@ iframe{
   font-weight:800;
   letter-spacing:1px;
 }
+/* 05_HEADER */
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  width:92%;
+  max-width:560px;
+  margin:20px auto 10px;
+}
+
+.settingsBtn{
+  background:#1c2a44;
+  color:white;
+  border:none;
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  font-size:20px;
+}
