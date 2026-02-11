@@ -1,20 +1,32 @@
+<!-- ===================================================== -->
+<!-- 00_DOCUMENT_START -->
+<!-- ===================================================== -->
 <!DOCTYPE html>
 <html lang="ja">
+
+<!-- ===================================================== -->
+<!-- 10_HEAD_START -->
+<!-- ===================================================== -->
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>FX CORE AUTO</title>
 
+<!-- ===================================================== -->
+<!-- 11_STYLE_ROOT -->
+<!-- ===================================================== -->
   <style>
     :root{
-      --c:#00ffc3;              /* default = range */
+      --c:#00ffc3;
       --bg:#000;
       --box:rgba(0,0,0,0.55);
       --border:2px solid var(--c);
       --danger:#ff3b7f;
     }
 
-    /* ===== BASE ===== */
+<!-- ===================================================== -->
+<!-- 12_BASE_LAYOUT -->
+<!-- ===================================================== -->
     body{
       margin:0;
       background:var(--bg);
@@ -31,6 +43,9 @@
       margin:0 auto 40px;
     }
 
+<!-- ===================================================== -->
+<!-- 13_BOX_SYSTEM -->
+<!-- ===================================================== -->
     .box{
       border:var(--border);
       margin:14px 0;
@@ -55,6 +70,9 @@
       text-align:right;
     }
 
+<!-- ===================================================== -->
+<!-- 14_BUTTON_SYSTEM -->
+<!-- ===================================================== -->
     .btnRow{
       display:flex;
       justify-content:space-between;
@@ -80,28 +98,35 @@
       height:420px;
     }
 
-    /* ===== THEME (ui.js が class を付け替える前提) ===== */
+<!-- ===================================================== -->
+<!-- 15_THEME_SYSTEM -->
+<!-- ===================================================== -->
     body.long-mode{
-      --c:#ff3b7f;              /* LONG = pink */
+      --c:#ff3b7f;
       --border:2px solid #ff3b7f;
     }
     body.short-mode{
-      --c:#3ba6ff;              /* SHORT = blue */
+      --c:#3ba6ff;
       --border:2px solid #3ba6ff;
     }
     body.range-mode{
-      --c:#00ffc3;              /* RANGE = green */
+      --c:#00ffc3;
       --border:2px solid #00ffc3;
     }
   </style>
 </head>
 
+<!-- ===================================================== -->
+<!-- 20_BODY_START -->
+<!-- ===================================================== -->
 <body class="range-mode">
-  <h1>FX CORE AUTO</h1>
 
+  <h1>FX CORE AUTO</h1>
   <div class="wrap">
 
-    <!-- ===== PRICE ===== -->
+<!-- ===================================================== -->
+<!-- 21_PRICE_BOX -->
+<!-- ===================================================== -->
     <div class="box">
       <div class="row"><span>USDJPY</span><span id="usdPrice">--</span></div>
       <div class="row"><span>CHANGE</span><span id="usdChange">--</span></div>
@@ -109,7 +134,9 @@
       <div class="muted" id="updatedAt">--</div>
     </div>
 
-    <!-- ===== MARKET ===== -->
+<!-- ===================================================== -->
+<!-- 22_MARKET_BOX -->
+<!-- ===================================================== -->
     <div class="box">
       <div class="row"><span>SPX</span><span id="sp">--</span></div>
       <div class="row"><span>VIX</span><span id="vix">--</span></div>
@@ -117,12 +144,16 @@
       <div class="row"><span>DXY</span><span id="dxy">--</span></div>
     </div>
 
-    <!-- ===== MODE ===== -->
+<!-- ===================================================== -->
+<!-- 23_MODE_BOX -->
+<!-- ===================================================== -->
     <div class="box">
       <div class="row"><span>MARKET MODE</span><span id="mode">--</span></div>
     </div>
 
-    <!-- ===== SIGNAL ===== -->
+<!-- ===================================================== -->
+<!-- 24_SIGNAL_BOX -->
+<!-- ===================================================== -->
     <div class="box">
       <div class="row"><span>ENV</span><span id="env">--</span></div>
       <div class="row"><span>DIR</span><span id="dir">--</span></div>
@@ -130,14 +161,18 @@
       <div class="row"><span>ORDER</span><span id="order">--</span></div>
     </div>
 
-    <!-- ===== SCORE ===== -->
+<!-- ===================================================== -->
+<!-- 25_SCORE_BOX -->
+<!-- ===================================================== -->
     <div class="box">
       <div class="row"><span>RISK SCORE</span><span id="riskScore">--</span></div>
       <div class="row"><span>USD SCORE</span><span id="usdScore">--</span></div>
       <div class="row"><span>TOTAL SCORE</span><span id="totalScore">--</span></div>
     </div>
 
-    <!-- ===== BUTTONS ===== -->
+<!-- ===================================================== -->
+<!-- 26_BUTTON_BOX -->
+<!-- ===================================================== -->
     <div class="box">
       <div class="btnRow">
         <button onclick="autoAnalyze()">AUTO ANALYZE</button>
@@ -145,19 +180,27 @@
       </div>
     </div>
 
-    <!-- ===== CHART ===== -->
+<!-- ===================================================== -->
+<!-- 27_CHART_BOX -->
+<!-- ===================================================== -->
     <div class="box">
       <iframe src="chart.html" loading="lazy"></iframe>
     </div>
 
   </div>
 
+<!-- ===================================================== -->
+<!-- 90_SCRIPT_MODULE -->
+<!-- ===================================================== -->
   <script type="module">
+
+<!-- ===== 91_IMPORTS ===== -->
     import { calcScore } from "./score.js";
     import { analyzeLogic } from "./engine.js";
     import { updateUI } from "./ui.js";
     import { saveEntry } from "./logs.js";
 
+<!-- ===== 92_UTILS ===== -->
     function fmt(n){
       return (typeof n === "number" && Number.isFinite(n)) ? Number(n).toFixed(3) : "--";
     }
@@ -167,14 +210,13 @@
       if(el) el.innerText = value;
     }
 
+<!-- ===== 93_ANALYZE_CORE ===== -->
     async function autoAnalyze(){
       try{
         const res = await fetch("/api/market", { cache:"no-store" });
         if(!res.ok) throw new Error("API HTTP " + res.status);
-
         const data = await res.json();
 
-        // raw numbers
         setText("usdPrice",  fmt(data.usdjpy?.price));
         setText("usdChange", fmt(data.usdjpy?.changePct));
         setText("usdRsi",    fmt(data.usdjpy?.rsi));
@@ -183,21 +225,15 @@
         setText("vix", fmt(data.vixPct));
         setText("tlt", fmt(data.tltPct));
         setText("dxy", fmt(data.dxyPct));
+        setText("updatedAt", data.updatedAt || "--");
 
-        setText("updatedAt", data.updatedAt ? data.updatedAt : "--");
-
-        // scores
         const { riskScore, usdScore, totalScore } = calcScore(data);
-        setText("riskScore", String(riskScore));
-        setText("usdScore",  String(usdScore));
-        setText("totalScore",String(totalScore));
+        setText("riskScore", riskScore);
+        setText("usdScore", usdScore);
+        setText("totalScore", totalScore);
 
-        // logic + ui
         const result = analyzeLogic(data, riskScore, usdScore, totalScore);
-
-        // market mode表示（テーマも ui.js で反映）
         setText("mode", result.mode || data.usdjpy?.marketMode || "RANGE");
-
         updateUI(result);
 
       }catch(e){
@@ -206,8 +242,11 @@
       }
     }
 
+<!-- ===== 94_GLOBAL_BIND ===== -->
     window.autoAnalyze = autoAnalyze;
     window.saveEntry = saveEntry;
+
   </script>
+
 </body>
 </html>
