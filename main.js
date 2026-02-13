@@ -67,11 +67,13 @@ async function autoAnalyze(){
     console.error(e);
     alert("API ERROR");
   }
+  
+  // ボタン有効化
+　　document.getElementById("saveBtn").disabled = false;
+　　document.getElementById("logBtn").disabled = false;
 }
 
 // ===== グローバル公開（HTMLボタン用） =====
 window.autoAnalyze = autoAnalyze;
 window.showLogs = showLogs;
 window.showStats = showStats;
-document.getElementById("saveBtn").disabled = false;
-document.getElementById("logBtn").disabled = false;
