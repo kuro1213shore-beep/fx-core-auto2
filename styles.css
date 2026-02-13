@@ -237,6 +237,8 @@ iframe{
 /* =========================
    ⚙ 設定ボタン（ONスイッチ風）
    ========================= */
+
+
 .settingsBtn{
   position:relative;
   width:74px;
@@ -255,6 +257,7 @@ iframe{
   display:flex;
   align-items:center;
   padding:0 6px;
+  transition:.25s;
 }
 
 /* ノブ部分 */
@@ -279,15 +282,21 @@ iframe{
   font-size:14px;
 
   transform:translateX(34px); /* ON位置 */
+  transition:.25s ease;
 }
 
-/* ON状態の発光 */
+/* ON発光 */
 .settingsBtn{
   box-shadow:
     inset 0 2px 4px rgba(255,255,255,0.25),
     inset 0 -3px 6px rgba(0,0,0,0.6),
     0 0 12px rgba(80,160,255,0.45),
     0 6px 18px rgba(0,0,0,0.6);
+}
+
+/* ホバーで未来感 */
+.settingsBtn:hover::before{
+  transform:translateX(34px) rotate(25deg);
 }
 
 /* ===================================================== */
