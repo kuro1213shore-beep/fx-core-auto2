@@ -19,12 +19,6 @@ body{
   text-align:center;
 }
 
-h1{
-  margin:30px 0 20px;
-  font-weight:800;
-  letter-spacing:3px;
-}
-
 /* ===================================================== */
 /* 20_LAYOUT */
 /* ===================================================== */
@@ -51,7 +45,7 @@ h1{
   animation:fadeIn .4s ease;
 }
 
-/* ⭐ 上部ガラス反射 */
+/* 上部ガラス反射 */
 .card::before{
   content:"";
   position:absolute;
@@ -60,15 +54,11 @@ h1{
   width:100%;
   height:42%;
   border-radius:18px;
-  background:linear-gradient(
-    to bottom,
-    rgba(255,255,255,0.08),
-    transparent
-  );
+  background:linear-gradient(to bottom, rgba(255,255,255,0.08), transparent);
   pointer-events:none;
 }
 
-/* ⭐ 下部発光 */
+/* 下部発光 */
 .card::after{
   content:"";
   position:absolute;
@@ -76,11 +66,9 @@ h1{
   bottom:-10px;
   width:80%;
   height:20px;
-  background:radial-gradient(
-    ellipse at center,
+  background:radial-gradient(ellipse at center,
     rgba(0,180,255,0.35),
-    transparent 70%
-  );
+    transparent 70%);
   filter:blur(12px);
   opacity:.6;
   pointer-events:none;
@@ -112,8 +100,8 @@ h1{
   gap:14px;
 }
 
-/* 共通 */
-button{
+/* ⭐ ボタン共通（他ボタンへ影響しない） */
+.btnCard button{
   flex:1;
   padding:14px;
   border-radius:14px;
@@ -127,15 +115,14 @@ button{
 }
 
 /* 🔴 AUTO ANALYZE */
-button:first-child{
+.btnCard button:first-child{
   background:linear-gradient(180deg,#ff4d4d,#b30021);
-
   box-shadow:
     0 0 10px rgba(255,60,60,0.45),
     0 6px 18px rgba(0,0,0,0.5);
 }
 
-button:first-child:hover{
+.btnCard button:first-child:hover{
   transform:translateY(-2px);
   box-shadow:
     0 0 18px rgba(255,60,60,0.7),
@@ -143,15 +130,14 @@ button:first-child:hover{
 }
 
 /* 🔵 SAVE ENTRY */
-button:last-child{
+.btnCard button:last-child{
   background:linear-gradient(180deg,#4da3ff,#1b4fd8);
-
   box-shadow:
     0 0 10px rgba(60,140,255,0.45),
     0 6px 18px rgba(0,0,0,0.5);
 }
 
-button:last-child:hover{
+.btnCard button:last-child:hover{
   transform:translateY(-2px);
   box-shadow:
     0 0 18px rgba(60,140,255,0.7),
@@ -198,8 +184,6 @@ iframe{
   display:flex;
   flex-direction:column;
   align-items:center;
-  justify-content:center;
-  margin-top:10px;
 }
 
 .gaugeSvg{
@@ -220,8 +204,6 @@ iframe{
   opacity:0.85;
 }
 
-
-
 /* ===================================================== */
 /* 80_HEADER */
 /* ===================================================== */
@@ -235,11 +217,10 @@ iframe{
 }
 
 /* =========================
-   ⚙ 設定ボタン（ONスイッチ風）
+   設定ボタン（スイッチ風）
    ========================= */
-
-
 .settingsBtn{
+  flex:none;                 /* ← レイアウト崩れ防止 */
   position:relative;
   width:74px;
   height:36px;
@@ -252,15 +233,15 @@ iframe{
   box-shadow:
     inset 0 2px 4px rgba(255,255,255,0.25),
     inset 0 -3px 6px rgba(0,0,0,0.6),
-    0 6px 16px rgba(0,0,0,0.6);
+    0 0 12px rgba(80,160,255,0.45),
+    0 6px 18px rgba(0,0,0,0.6);
 
   display:flex;
   align-items:center;
   padding:0 6px;
-  transition:.25s;
 }
 
-/* ノブ部分 */
+/* ⚙ ノブ */
 .settingsBtn::before{
   content:"⚙";
   display:flex;
@@ -281,22 +262,13 @@ iframe{
   color:#9ecbff;
   font-size:14px;
 
-  transform:translateX(34px); /* ON位置 */
+  transform:translateX(32px); /* 中央最適位置 */
   transition:.25s ease;
 }
 
-/* ON発光 */
-.settingsBtn{
-  box-shadow:
-    inset 0 2px 4px rgba(255,255,255,0.25),
-    inset 0 -3px 6px rgba(0,0,0,0.6),
-    0 0 12px rgba(80,160,255,0.45),
-    0 6px 18px rgba(0,0,0,0.6);
-}
-
-/* ホバーで未来感 */
+/* ホバー未来感 */
 .settingsBtn:hover::before{
-  transform:translateX(34px) rotate(25deg);
+  transform:translateX(32px) rotate(25deg);
 }
 
 /* ===================================================== */
