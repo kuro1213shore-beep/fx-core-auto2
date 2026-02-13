@@ -1,7 +1,7 @@
 import { calcScore } from "./score.js";
 import { analyzeLogic } from "./engine.js";
 import { updateUI, setText } from "./ui.js";
-import { showLogs, showStats } from "./logs.js"; // ←追加
+import { showLogs, showStats } from "./logs.js";
 
 function fmt(n){
   return (typeof n === "number" && Number.isFinite(n))
@@ -39,7 +39,6 @@ async function autoAnalyze(){
     const result = analyzeLogic(data, riskScore, usdScore, totalScore);
 
     setText("mode", result.mode || "RANGE");
-
     updateUI(result);
 
     /* ===== SVG GAUGE ===== */
@@ -67,10 +66,15 @@ async function autoAnalyze(){
     console.error(e);
     alert("API ERROR");
   }
-  
-  // ボタン有効化
-　　document.getElementById("saveBtn").disabled = false;
-　　document.getElementById("logBtn").disabled = false;
+
+  // ===== ボタン有効化（Safari対策） =====
+  setTimeout(() => {
+    const saveBtn = document.getElementById("saveBtn");
+    const logBtn = document.getElementById("logBtn");
+
+    if(saveBtn) saveBtn.disabled = false;
+    if(logBtn) logBtn.disabled = false;
+  }, 100);
 }
 
 // ===== グローバル公開（HTMLボタン用） =====
