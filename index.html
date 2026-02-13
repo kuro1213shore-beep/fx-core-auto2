@@ -89,8 +89,19 @@
 
 <div class="card btnCard">
   <button onclick="autoAnalyze()">AUTO ANALYZE</button>
-  <button id="saveBtn" onclick="saveEntry()" disabled>SAVE ENTRY</button>
-  <button id="logBtn" onclick="showLogs()" disabled>LOG</button>
+
+  <button id="saveBtn"
+          class="btnDisabled"
+          onclick="saveEntry()">
+    SAVE ENTRY
+  </button>
+
+  <button id="logBtn"
+          class="btnDisabled"
+          onclick="showLogs()">
+    LOG
+  </button>
+
   <button onclick="showStats()">STATS</button>
 </div>
 
