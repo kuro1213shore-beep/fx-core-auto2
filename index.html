@@ -89,21 +89,32 @@
  <!-- ===================================================== -->
 <!-- 25_SCORE_GAUGE_CARD -->
 <!-- ===================================================== -->
-<div class="card scoreFlex">
+<div class="gaugeRight">
 
-  <div class="scoreLeft">
-    <div class="row"><span>RISK SCORE</span><span id="riskScore">--</span></div>
-    <div class="row"><span>USD SCORE</span><span id="usdScore">--</span></div>
-    <div class="row"><span>TOTAL SCORE</span><span id="totalScore">--</span></div>
-  </div>
+  <svg viewBox="0 0 200 120" class="gaugeSvg">
+    <defs>
+      <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#00c6ff"/>
+        <stop offset="50%" stop-color="#00ff99"/>
+        <stop offset="75%" stop-color="#ffcc00"/>
+        <stop offset="100%" stop-color="#ff0033"/>
+      </linearGradient>
+    </defs>
 
-  <div class="gaugeRight">
-    <div class="gaugeWrap">
-      <div class="gaugeFill" id="gaugeFill"></div>
-    </div>
-    <div class="gaugeText" id="gaugeText">0%</div>
-    <div class="orderText" id="order">--</div>
-  </div>
+    <path
+      d="M20 100 A80 80 0 0 1 180 100"
+      stroke="url(#gaugeGradient)"
+      stroke-width="16"
+      fill="none"
+      stroke-linecap="round"
+      id="gaugeArc"
+      stroke-dasharray="251"
+      stroke-dashoffset="251"
+    />
+  </svg>
+
+  <div class="gaugeText" id="gaugeText">0%</div>
+  <div class="strengthText" id="strengthText">--</div>
 
 </div>
 
