@@ -1,7 +1,7 @@
 import { calcScore } from "./score.js";
 import { analyzeLogic } from "./engine.js";
 import { updateUI, setText } from "./ui.js";
-import { showLogs, showStats } from "./logs.js";
+import { showLogs, showStats, saveEntry } from "./logs.js"; // ★追加
 
 function fmt(n){
   return (typeof n === "number" && Number.isFinite(n))
@@ -103,7 +103,9 @@ function enableActionButtons(){
   }
 }
 
-// HTMLから呼び出し
+/* ===== HTMLから呼び出し ===== */
+
 window.autoAnalyze = autoAnalyze;
 window.showLogs = showLogs;
 window.showStats = showStats;
+window.saveEntry = saveEntry;   // ★超重要：これがないと動かない
