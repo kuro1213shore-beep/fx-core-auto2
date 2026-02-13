@@ -1,35 +1,22 @@
-/* =========================
-   00_IMPORT
-========================= */
 import { calcScore } from "./score.js";
 import { analyzeLogic } from "./engine.js";
 import { updateUI, setText } from "./ui.js";
 
-
-/* =========================
-   10_UTIL
-========================= */
 function fmt(n){
   return (typeof n === "number" && Number.isFinite(n))
     ? Number(n).toFixed(3)
     : "--";
 }
 
-
-/* =========================
-   20_ANALYZE
-========================= */
 async function autoAnalyze(){
 
   try{
-
     const res = await fetch("/api/market");
     if(!res.ok) throw new Error("API ERROR");
 
     const data = await res.json();
 
-    /* ===== 21_DISPLAY_RAW ===== */
-
+    /* ===== DISPLAY RAW ===== */
     setText("usdPrice", fmt(data.usdjpy?.price));
     setText("usdChange", fmt(data.usdjpy?.change));
     setText("usdRsi", fmt(data.usdjpy?.rsi));
@@ -40,41 +27,40 @@ async function autoAnalyze(){
     setText("dxy", fmt(data.dxyPct));
     setText("updatedAt", data.updatedAt || "--");
 
-
-    /* ===== 22_SCORE ===== */
-
+    /* ===== SCORE ===== */
     const { riskScore, usdScore, totalScore } = calcScore(data);
 
     setText("riskScore", riskScore);
     setText("usdScore", usdScore);
+    setText("totalScore", totalScore);
 
-
-    /* ===== 22B_GAUGE ===== */
-
-    const max = 4;   // スコア最大想定
-    const percent = Math.round((Math.abs(totalScore) / max) * 100);
-
-    const fill = document.getElementById("gaugeFill");
-    const text = document.getElementById("gaugeText");
-
-    if(fill) fill.style.width = percent + "%";
-    if(text) text.innerText = percent + "%";
-
-    // TOTAL表示（％付き）
-    setText("totalScore", totalScore + " (" + percent + "%)");
-
-
-    /* ===== 23_LOGIC ===== */
-
-    const result = analyzeLogic(data, riskScore, usdScore);
+    /* ===== LOGIC ===== */
+    const result = analyzeLogic(data, riskScore, usdScore, totalScore);
 
     setText("mode", result.mode || "RANGE");
 
-
-    /* ===== 24_UI ===== */
-
     updateUI(result);
 
+    /* ===== SVG GAUGE ===== */
+    const arc = document.getElementById("gaugeArc");
+    const gaugeText = document.getElementById("gaugeText");
+    const strengthText = document.getElementById("strengthText");
+
+    const max = 4;  // スコア最大想定
+    const percent = Math.round((Math.abs(totalScore) / max) * 100);
+
+    const totalLength = 251;  // stroke-dasharray値
+    const offset = totalLength - (percent / 100) * totalLength;
+
+    if(arc) arc.style.strokeDashoffset = offset;
+    if(gaugeText) gaugeText.innerText = percent + "%";
+
+    if(strengthText){
+      if(percent < 30) strengthText.innerText = "WEAK";
+      else if(percent < 60) strengthText.innerText = "NORMAL";
+      else if(percent < 80) strengthText.innerText = "STRONG";
+      else strengthText.innerText = "EXTREME";
+    }
 
   }catch(e){
     console.error(e);
@@ -82,8 +68,4 @@ async function autoAnalyze(){
   }
 }
 
-
-/* =========================
-   90_GLOBAL
-========================= */
 window.autoAnalyze = autoAnalyze;
