@@ -25,6 +25,7 @@ h1{
   margin:30px 0 20px;
   font-weight:800;
   letter-spacing:3px;
+  text-shadow:0 0 18px rgba(80,160,255,0.35);
 }
 
 /* ===================================================== */
@@ -47,11 +48,13 @@ h1{
   margin:16px 0;
 
   box-shadow:
-    0 8px 20px rgba(0,0,0,0.5),
+    0 10px 30px rgba(0,0,0,0.55),
     inset 0 1px 1px rgba(255,255,255,0.05);
+
+  animation:fadeIn .4s ease;
 }
 
-/* ⭐ 上部ガラス反射 */
+/* ⭐ ガラス反射 */
 .card::before{
   content:"";
   position:absolute;
@@ -60,32 +63,27 @@ h1{
   width:100%;
   height:40%;
   border-radius:18px;
-  background:linear-gradient(
-    to bottom,
-    rgba(255,255,255,0.08),
-    transparent
-  );
+  background:linear-gradient(to bottom, rgba(255,255,255,0.08), transparent);
   pointer-events:none;
 }
 
-/* ⭐ 下部発光（近未来感） */
+/* ⭐ 下部ネオン発光 */
 .card::after{
   content:"";
   position:absolute;
   left:10%;
-  bottom:-8px;
+  bottom:-10px;
   width:80%;
-  height:18px;
-  background:radial-gradient(
-    ellipse at center,
-    rgba(0,180,255,0.35),
-    transparent 70%
-  );
-  filter:blur(10px);
-  opacity:.6;
+  height:20px;
+  background:radial-gradient(ellipse at center, rgba(0,180,255,0.35), transparent 70%);
+  filter:blur(12px);
+  opacity:.65;
   pointer-events:none;
 }
 
+/* ===================================================== */
+/* 31_ROW */
+/* ===================================================== */
 .row{
   display:flex;
   justify-content:space-between;
@@ -114,29 +112,28 @@ h1{
 
 button{
   flex:1;
-  padding:12px;
-  border-radius:12px;
+  padding:14px;
+  border-radius:14px;
   border:none;
-  font-weight:800;
+  font-weight:900;
   font-size:15px;
   cursor:pointer;
-  background:var(--danger);
-  color:black;
-  transition:0.2s ease;
-}
 
-/* ⭐ ボタン発光 */
-button{
+  background:linear-gradient(180deg,#ff4b8a,#ff2f6d);
+  color:white;
+
   box-shadow:
-    0 0 12px rgba(255,59,127,0.6),
-    0 6px 18px rgba(0,0,0,0.4);
+    0 6px 18px rgba(255,0,100,0.45),
+    inset 0 2px 4px rgba(255,255,255,0.25);
+
+  transition:.25s;
 }
 
 button:hover{
   transform:translateY(-2px);
   box-shadow:
-    0 0 18px rgba(255,59,127,0.9),
-    0 8px 22px rgba(0,0,0,0.6);
+    0 10px 28px rgba(255,0,120,0.6),
+    0 0 20px rgba(255,0,120,0.4);
 }
 
 /* ===================================================== */
@@ -159,11 +156,26 @@ iframe{
 }
 
 .miniCard{
+  position:relative;
   background:linear-gradient(145deg,#111c30,#0d1628);
   padding:14px;
   border-radius:14px;
   text-align:left;
-  box-shadow:0 4px 12px rgba(0,0,0,0.4);
+
+  box-shadow:0 6px 16px rgba(0,0,0,0.45);
+}
+
+/* 小カード下部発光 */
+.miniCard::after{
+  content:"";
+  position:absolute;
+  bottom:-6px;
+  left:25%;
+  width:50%;
+  height:10px;
+  background:rgba(255,140,0,0.35);
+  filter:blur(8px);
+  opacity:.5;
 }
 
 .miniCard div:last-child{
@@ -175,7 +187,6 @@ iframe{
 /* ===================================================== */
 /* 70_GAUGE */
 /* ===================================================== */
-
 .gaugeArea{
   display:flex;
   flex-direction:column;
@@ -223,15 +234,12 @@ iframe{
   height:44px;
   border-radius:50%;
   font-size:20px;
+  box-shadow:0 0 12px rgba(255,255,255,0.15);
 }
 
 /* ===================================================== */
-/* 90_SMOOTH_APPEAR */
+/* 90_ANIMATION */
 /* ===================================================== */
-.card{
-  animation:fadeIn .4s ease;
-}
-
 @keyframes fadeIn{
   from{
     opacity:0;
