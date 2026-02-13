@@ -1,6 +1,7 @@
 import { calcScore } from "./score.js";
 import { analyzeLogic } from "./engine.js";
 import { updateUI, setText } from "./ui.js";
+import { showLogs, showStats } from "./logs.js"; // ←追加
 
 function fmt(n){
   return (typeof n === "number" && Number.isFinite(n))
@@ -46,10 +47,10 @@ async function autoAnalyze(){
     const gaugeText = document.getElementById("gaugeText");
     const strengthText = document.getElementById("strengthText");
 
-    const max = 4;  // スコア最大想定
+    const max = 4;
     const percent = Math.round((Math.abs(totalScore) / max) * 100);
 
-    const totalLength = 251;  // stroke-dasharray値
+    const totalLength = 251;
     const offset = totalLength - (percent / 100) * totalLength;
 
     if(arc) arc.style.strokeDashoffset = offset;
@@ -68,4 +69,7 @@ async function autoAnalyze(){
   }
 }
 
+// ===== グローバル公開（HTMLボタン用） =====
 window.autoAnalyze = autoAnalyze;
+window.showLogs = showLogs;
+window.showStats = showStats;
