@@ -1,1 +1,47 @@
-1
+.btnCard{
+  display:flex;
+  gap:14px;
+}
+
+.btnCard button{
+  flex:1;
+  padding:14px;
+  border-radius:14px;
+  border:none;
+  font-weight:800;
+  font-size:15px;
+  cursor:pointer;
+  color:white;
+  letter-spacing:1px;
+  transition:.25s ease;
+}
+
+/* AUTO ANALYZE */
+.btnCard button:first-child{
+  background:linear-gradient(180deg,#ff4d4d,#b30021);
+  box-shadow:
+    0 0 10px rgba(255,60,60,0.45),
+    0 6px 18px rgba(0,0,0,0.5);
+}
+
+.btnCard button:first-child:hover{
+  transform:translateY(-2px);
+  box-shadow:
+    0 0 18px rgba(255,60,60,0.7),
+    0 8px 22px rgba(0,0,0,0.6);
+}
+
+/* SAVE ENTRY */
+.btnCard button:last-child{
+  background:linear-gradient(180deg,#4da3ff,#1b4fd8);
+  box-shadow:
+    0 0 10px rgba(60,140,255,0.45),
+    0 6px 18px rgba(0,0,0,0.5);
+}
+
+.btnCard button:last-child:hover{
+  transform:translateY(-2px);
+  box-shadow:
+    0 0 18px rgba(60,140,255,0.7),
+    0 8px 22px rgba(0,0,0,0.6);
+}
