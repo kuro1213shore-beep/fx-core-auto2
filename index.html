@@ -1,40 +1,22 @@
-<!-- ===================================================== -->
-<!-- 00_DOCUMENT_START -->
-<!-- ===================================================== -->
 <!DOCTYPE html>
 <html lang="ja">
-
-<!-- ===================================================== -->
-<!-- 10_HEAD -->
-<!-- ===================================================== -->
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>FX CORE AUTO</title>
-
-  <!-- 11_STYLE_LOAD -->
   <link rel="stylesheet" href="./styles.css" />
 </head>
 
-<!-- ===================================================== -->
-<!-- 20_BODY -->
-<!-- ===================================================== -->
-
-<!-- 20_BODY -->
 <body>
 
   <div class="header">
     <h1>FX CORE AUTO</h1>
-    <button class="settingsBtn" onclick="location.href='settings.html'">
-      ⚙
-    </button>
+    <button class="settingsBtn" onclick="location.href='settings.html'">⚙</button>
   </div>
 
   <div class="wrap">
 
-    <!-- ===================================================== -->
-    <!-- 21_PRICE_CARD -->
-    <!-- ===================================================== -->
+    <!-- PRICE -->
     <div class="card">
       <div class="row"><span>USDJPY</span><span id="usdPrice">--</span></div>
       <div class="row"><span>CHANGE</span><span id="usdChange">--</span></div>
@@ -42,43 +24,20 @@
       <div class="muted" id="updatedAt">--</div>
     </div>
 
-  <!-- ===================================================== -->
-<!-- 22_MARKET_CARD -->
-<!-- ===================================================== -->
-<div class="card marketGrid">
+    <!-- MARKET -->
+    <div class="card marketGrid">
+      <div class="miniCard"><div>SPX</div><div id="sp">--</div></div>
+      <div class="miniCard"><div>VIX</div><div id="vix">--</div></div>
+      <div class="miniCard"><div>TLT</div><div id="tlt">--</div></div>
+      <div class="miniCard"><div>DXY</div><div id="dxy">--</div></div>
+    </div>
 
-  <div class="miniCard">
-    <div>SPX</div>
-    <div id="sp">--</div>
-  </div>
-
-  <div class="miniCard">
-    <div>VIX</div>
-    <div id="vix">--</div>
-  </div>
-
-  <div class="miniCard">
-    <div>TLT</div>
-    <div id="tlt">--</div>
-  </div>
-
-  <div class="miniCard">
-    <div>DXY</div>
-    <div id="dxy">--</div>
-  </div>
-
-</div>
-
-    <!-- ===================================================== -->
-    <!-- 23_MODE_CARD -->
-    <!-- ===================================================== -->
+    <!-- MODE -->
     <div class="card">
       <div class="row"><span>MARKET MODE</span><span id="mode">--</span></div>
     </div>
 
-    <!-- ===================================================== -->
-    <!-- 24_SIGNAL_CARD -->
-    <!-- ===================================================== -->
+    <!-- SIGNAL -->
     <div class="card">
       <div class="row"><span>ENV</span><span id="env">--</span></div>
       <div class="row"><span>DIR</span><span id="dir">--</span></div>
@@ -86,67 +45,59 @@
       <div class="row"><span>ORDER</span><span id="order">--</span></div>
     </div>
 
- <!-- ===================================================== -->
-<!-- 25_SCORE_GAUGE_CARD -->
-<!-- ===================================================== -->
+    <!-- SCORE + GAUGE -->
+    <div class="card">
 
-<!-- ===================================================== -->
-<!-- 25_SCORE_GAUGE_CARD -->
-<!-- ===================================================== -->
-<div class="card">
+      <div class="scoreBoard">
+        <div class="row"><span>RISK SCORE</span><span id="riskScore">--</span></div>
+        <div class="row"><span>USD SCORE</span><span id="usdScore">--</span></div>
+        <div class="row"><span>TOTAL SCORE</span><span id="totalScore">--</span></div>
+      </div>
 
-  <div class="gaugeRight">
+      <div class="gaugeArea">
 
-    <svg viewBox="0 0 200 120" class="gaugeSvg">
-      <defs>
-        <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stop-color="#00c6ff"/>
-          <stop offset="50%" stop-color="#00ff99"/>
-          <stop offset="75%" stop-color="#ffcc00"/>
-          <stop offset="100%" stop-color="#ff0033"/>
-        </linearGradient>
-      </defs>
+        <svg viewBox="0 0 200 120" class="gaugeSvg">
+          <defs>
+            <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#00c6ff"/>
+              <stop offset="50%" stop-color="#00ff99"/>
+              <stop offset="75%" stop-color="#ffcc00"/>
+              <stop offset="100%" stop-color="#ff0033"/>
+            </linearGradient>
+          </defs>
 
-      <path
-        d="M20 100 A80 80 0 0 1 180 100"
-        stroke="url(#gaugeGradient)"
-        stroke-width="16"
-        fill="none"
-        stroke-linecap="round"
-        id="gaugeArc"
-        stroke-dasharray="251"
-        stroke-dashoffset="251"
-      />
-    </svg>
+          <path
+            d="M20 100 A80 80 0 0 1 180 100"
+            stroke="url(#gaugeGradient)"
+            stroke-width="16"
+            fill="none"
+            stroke-linecap="round"
+            id="gaugeArc"
+            stroke-dasharray="251"
+            stroke-dashoffset="251"
+          />
+        </svg>
 
-    <div class="gaugeText" id="gaugeText">0%</div>
-    <div class="strengthText" id="strengthText">--</div>
+        <div class="gaugeText" id="gaugeText">0%</div>
+        <div class="strengthText" id="strengthText">--</div>
 
-  </div>
+      </div>
 
-</div>
-  
+    </div>
 
-    <!-- ===================================================== -->
-    <!-- 27_BUTTON_CARD -->
-    <!-- ===================================================== -->
+    <!-- BUTTON -->
     <div class="card btnCard">
       <button onclick="autoAnalyze()">AUTO ANALYZE</button>
       <button onclick="saveEntry()">SAVE ENTRY</button>
     </div>
 
-    <!-- ===================================================== -->
-    <!-- 28_CHART_CARD -->
-    <!-- ===================================================== -->
+    <!-- CHART -->
     <div class="card">
       <iframe src="chart.html" loading="lazy"></iframe>
     </div>
 
   </div>
 
-  <!-- ===================================================== -->
-  <!-- 90_MAIN_CONTROLLER -->
-  <!-- ===================================================== -->
   <script type="module" src="./main.js"></script>
 
 </body>
