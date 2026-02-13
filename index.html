@@ -89,35 +89,42 @@
  <!-- ===================================================== -->
 <!-- 25_SCORE_GAUGE_CARD -->
 <!-- ===================================================== -->
-<div class="gaugeRight">
 
-  <svg viewBox="0 0 200 120" class="gaugeSvg">
-    <defs>
-      <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" stop-color="#00c6ff"/>
-        <stop offset="50%" stop-color="#00ff99"/>
-        <stop offset="75%" stop-color="#ffcc00"/>
-        <stop offset="100%" stop-color="#ff0033"/>
-      </linearGradient>
-    </defs>
+<!-- ===================================================== -->
+<!-- 25_SCORE_GAUGE_CARD -->
+<!-- ===================================================== -->
+<div class="card">
 
-    <path
-      d="M20 100 A80 80 0 0 1 180 100"
-      stroke="url(#gaugeGradient)"
-      stroke-width="16"
-      fill="none"
-      stroke-linecap="round"
-      id="gaugeArc"
-      stroke-dasharray="251"
-      stroke-dashoffset="251"
-    />
-  </svg>
+  <div class="gaugeRight">
 
-  <div class="gaugeText" id="gaugeText">0%</div>
-  <div class="strengthText" id="strengthText">--</div>
+    <svg viewBox="0 0 200 120" class="gaugeSvg">
+      <defs>
+        <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#00c6ff"/>
+          <stop offset="50%" stop-color="#00ff99"/>
+          <stop offset="75%" stop-color="#ffcc00"/>
+          <stop offset="100%" stop-color="#ff0033"/>
+        </linearGradient>
+      </defs>
+
+      <path
+        d="M20 100 A80 80 0 0 1 180 100"
+        stroke="url(#gaugeGradient)"
+        stroke-width="16"
+        fill="none"
+        stroke-linecap="round"
+        id="gaugeArc"
+        stroke-dasharray="251"
+        stroke-dashoffset="251"
+      />
+    </svg>
+
+    <div class="gaugeText" id="gaugeText">0%</div>
+    <div class="strengthText" id="strengthText">--</div>
+
+  </div>
 
 </div>
-
   
 
     <!-- ===================================================== -->
