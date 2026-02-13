@@ -1,1 +1,19 @@
-1
+.marketGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+.miniCard{
+  background:linear-gradient(145deg,#111c30,#0d1628);
+  padding:14px;
+  border-radius:14px;
+  text-align:left;
+  box-shadow:0 4px 12px rgba(0,0,0,0.4);
+}
+
+.miniCard div:last-child{
+  font-size:20px;
+  font-weight:700;
+  margin-top:6px;
+}
