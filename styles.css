@@ -2,8 +2,8 @@
 /* 00_ROOT_THEME */
 /* ===================================================== */
 :root{
-  --bg1:#0a0f1c;
-  --bg2:#101a2e;
+  --bg1:#060b16;
+  --bg2:#0d1628;
   --card:#121f36;
   --accent:#3ba6ff;
   --danger:#ff3b7f;
@@ -15,7 +15,14 @@
 /* ===================================================== */
 body{
   margin:0;
-  background:linear-gradient(160deg,var(--bg1),var(--bg2));
+
+  /* ★ 背景グロー追加 */
+  background:
+    radial-gradient(circle at 20% 10%, rgba(0,150,255,0.25), transparent 40%),
+    radial-gradient(circle at 80% 30%, rgba(255,120,0,0.18), transparent 45%),
+    radial-gradient(circle at 50% 90%, rgba(0,255,180,0.15), transparent 40%),
+    linear-gradient(160deg,var(--bg1),var(--bg2));
+
   color:var(--text);
   font-family:system-ui,-apple-system,sans-serif;
   text-align:center;
@@ -40,13 +47,34 @@ h1{
 /* 30_CARD_SYSTEM */
 /* ===================================================== */
 .card{
+  position:relative;
   background:linear-gradient(145deg,#111c30,#0d1628);
   border-radius:18px;
   padding:18px;
   margin:16px 0;
+
+  /* ★ 発光 + 浮遊感 */
   box-shadow:
-    0 8px 20px rgba(0,0,0,0.5),
-    inset 0 1px 1px rgba(255,255,255,0.05);
+    0 10px 30px rgba(0,0,0,0.6),
+    inset 0 1px 1px rgba(255,255,255,0.06),
+    0 0 25px rgba(0,140,255,0.08);
+}
+
+/* ★ ガラス反射 */
+.card::after{
+  content:"";
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  height:45%;
+  border-radius:18px;
+  background:linear-gradient(
+    rgba(255,255,255,0.08),
+    rgba(255,255,255,0.02),
+    transparent
+  );
+  pointer-events:none;
 }
 
 .row{
@@ -78,14 +106,20 @@ button{
   font-weight:800;
   font-size:15px;
   cursor:pointer;
-  background:var(--danger);
-  color:black;
+
+  /* ★ ネオンボタン */
+  background:linear-gradient(135deg,#ff3b7f,#ff6aa6);
+  color:white;
+
+  box-shadow:
+    0 6px 18px rgba(255,60,120,0.5),
+    inset 0 1px 0 rgba(255,255,255,0.3);
+
   transition:0.2s ease;
 }
 
 button:hover{
   transform:translateY(-2px);
-  box-shadow:0 4px 12px rgba(0,0,0,0.4);
 }
 
 /* ===================================================== */
@@ -112,7 +146,11 @@ iframe{
   padding:14px;
   border-radius:14px;
   text-align:left;
-  box-shadow:0 4px 12px rgba(0,0,0,0.4);
+
+  /* ★ ミニカード発光 */
+  box-shadow:
+    0 6px 18px rgba(0,0,0,0.5),
+    0 0 14px rgba(0,140,255,0.07);
 }
 
 .miniCard div:last-child{
@@ -125,7 +163,6 @@ iframe{
 /* 70_GAUGE */
 /* ===================================================== */
 
-/* ★ HTMLに合わせたクラス名 */
 .gaugeArea{
   display:flex;
   flex-direction:column;
@@ -139,17 +176,21 @@ iframe{
   width:100%;
   max-width:260px;
   height:auto;
+
+  /* ★ ゲージ発光 */
+  filter: drop-shadow(0 0 8px rgba(0,255,200,0.35));
 }
 
-/* 中央パーセント表示 */
+/* 中央パーセント */
 .gaugeText{
   position:absolute;
   margin-top:60px;
   font-size:28px;
   font-weight:800;
+  letter-spacing:1px;
 }
 
-/* 強さ表示 */
+/* 強度テキスト */
 .strengthText{
   margin-top:8px;
   font-size:14px;
@@ -176,4 +217,5 @@ iframe{
   height:44px;
   border-radius:50%;
   font-size:20px;
+  box-shadow:0 0 10px rgba(0,140,255,0.25);
 }
