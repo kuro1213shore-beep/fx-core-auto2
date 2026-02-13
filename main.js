@@ -40,6 +40,24 @@ async function autoAnalyze(){
     setText("mode", result.mode || "RANGE");
     updateUI(result);
 
+    /* ===== 最新分析結果を保存（ログ用） ===== */
+    window.lastResult = {
+      time: new Date().toLocaleString(),
+
+      mode: result.mode || "-",
+      env: result.env || "-",
+      dir: result.dir || "-",
+      order: result.order || "-",
+
+      riskScore,
+      usdScore,
+      totalScore,
+
+      price: data.usdjpy?.price ?? "-",
+      change: data.usdjpy?.change ?? "-",
+      rsi: data.usdjpy?.rsi ?? "-"
+    };
+
     /* ===== GAUGE ===== */
     const arc = document.getElementById("gaugeArc");
     const gaugeText = document.getElementById("gaugeText");
@@ -61,9 +79,10 @@ async function autoAnalyze(){
   }catch(e){
     console.error(e);
     alert("API ERROR");
+    return;
   }
 
-  // ===== ボタン有効化（Safari完全対応） =====
+  // ===== ボタン有効化 =====
   enableActionButtons();
 }
 
