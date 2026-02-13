@@ -17,7 +17,7 @@ async function autoAnalyze(){
 
     const data = await res.json();
 
-    /* ===== DISPLAY RAW ===== */
+    /* ===== DISPLAY ===== */
     setText("usdPrice", fmt(data.usdjpy?.price));
     setText("usdChange", fmt(data.usdjpy?.change));
     setText("usdRsi", fmt(data.usdjpy?.rsi));
@@ -37,20 +37,16 @@ async function autoAnalyze(){
 
     /* ===== LOGIC ===== */
     const result = analyzeLogic(data, riskScore, usdScore, totalScore);
-
     setText("mode", result.mode || "RANGE");
     updateUI(result);
 
-    /* ===== SVG GAUGE ===== */
+    /* ===== GAUGE ===== */
     const arc = document.getElementById("gaugeArc");
     const gaugeText = document.getElementById("gaugeText");
     const strengthText = document.getElementById("strengthText");
 
-    const max = 4;
-    const percent = Math.round((Math.abs(totalScore) / max) * 100);
-
-    const totalLength = 251;
-    const offset = totalLength - (percent / 100) * totalLength;
+    const percent = Math.round((Math.abs(totalScore) / 4) * 100);
+    const offset = 251 - (percent / 100) * 251;
 
     if(arc) arc.style.strokeDashoffset = offset;
     if(gaugeText) gaugeText.innerText = percent + "%";
@@ -67,17 +63,28 @@ async function autoAnalyze(){
     alert("API ERROR");
   }
 
-  // ===== ボタン有効化（Safari対策） =====
-  setTimeout(() => {
-    const saveBtn = document.getElementById("saveBtn");
-    const logBtn = document.getElementById("logBtn");
-
-    if(saveBtn) saveBtn.disabled = false;
-    if(logBtn) logBtn.disabled = false;
-  }, 100);
+  // ===== ボタン有効化（Safari完全対応） =====
+  enableActionButtons();
 }
 
-// ===== グローバル公開（HTMLボタン用） =====
+/* ===== ボタン制御 ===== */
+
+function enableActionButtons(){
+  const saveBtn = document.getElementById("saveBtn");
+  const logBtn = document.getElementById("logBtn");
+
+  if(saveBtn){
+    saveBtn.classList.remove("btnDisabled");
+    saveBtn.classList.add("btnEnabled");
+  }
+
+  if(logBtn){
+    logBtn.classList.remove("btnDisabled");
+    logBtn.classList.add("btnEnabled");
+  }
+}
+
+// HTMLから呼び出し
 window.autoAnalyze = autoAnalyze;
 window.showLogs = showLogs;
 window.showStats = showStats;
