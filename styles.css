@@ -5,11 +5,13 @@
   --bg1:#0a0f1c;
   --bg2:#101a2e;
   --card:#121f36;
+  --accent:#3ba6ff;
+  --danger:#ff3b7f;
   --text:#eaf2ff;
 }
 
 /* ===================================================== */
-/* 10_BASE */
+/* BASE */
 /* ===================================================== */
 body{
   margin:0;
@@ -26,7 +28,7 @@ h1{
 }
 
 /* ===================================================== */
-/* 20_LAYOUT */
+/* LAYOUT */
 /* ===================================================== */
 .wrap{
   width:92%;
@@ -35,7 +37,7 @@ h1{
 }
 
 /* ===================================================== */
-/* 30_CARD_SYSTEM */
+/* CARD SYSTEM */
 /* ===================================================== */
 .card{
   position:relative;
@@ -45,7 +47,7 @@ h1{
   margin:16px 0;
 
   box-shadow:
-    0 10px 28px rgba(0,0,0,0.55),
+    0 8px 20px rgba(0,0,0,0.55),
     inset 0 1px 1px rgba(255,255,255,0.05);
 
   animation:fadeIn .4s ease;
@@ -58,7 +60,7 @@ h1{
   top:0;
   left:0;
   width:100%;
-  height:42%;
+  height:40%;
   border-radius:18px;
   background:linear-gradient(
     to bottom,
@@ -68,21 +70,23 @@ h1{
   pointer-events:none;
 }
 
-/* ⭐ 下部発光 */
+/* ⭐ 下部反射発光（青フチ感なし） */
 .card::after{
   content:"";
   position:absolute;
   left:10%;
-  bottom:-10px;
+  bottom:-8px;
   width:80%;
-  height:20px;
+  height:18px;
+
   background:radial-gradient(
     ellipse at center,
-    rgba(0,180,255,0.35),
+    rgba(255,255,255,0.12),
     transparent 70%
   );
+
   filter:blur(12px);
-  opacity:.6;
+  opacity:.35;
   pointer-events:none;
 }
 
@@ -95,7 +99,6 @@ h1{
 
 .row span:last-child{
   font-weight:700;
-  letter-spacing:0.5px;
 }
 
 .muted{
@@ -105,71 +108,7 @@ h1{
 }
 
 /* ===================================================== */
-/* 40_BUTTON_SYSTEM */
-/* ===================================================== */
-.btnCard{
-  display:flex;
-  gap:14px;
-}
-
-/* 共通 */
-button{
-  flex:1;
-  padding:14px;
-  border-radius:14px;
-  border:none;
-  font-weight:800;
-  font-size:15px;
-  cursor:pointer;
-  color:white;
-  letter-spacing:1px;
-  transition:.25s ease;
-}
-
-/* 🔴 AUTO ANALYZE */
-button:first-child{
-  background:linear-gradient(180deg,#ff4d4d,#b30021);
-
-  box-shadow:
-    0 0 10px rgba(255,60,60,0.45),
-    0 6px 18px rgba(0,0,0,0.5);
-}
-
-button:first-child:hover{
-  transform:translateY(-2px);
-  box-shadow:
-    0 0 18px rgba(255,60,60,0.7),
-    0 8px 22px rgba(0,0,0,0.6);
-}
-
-/* 🔵 SAVE ENTRY */
-button:last-child{
-  background:linear-gradient(180deg,#4da3ff,#1b4fd8);
-
-  box-shadow:
-    0 0 10px rgba(60,140,255,0.45),
-    0 6px 18px rgba(0,0,0,0.5);
-}
-
-button:last-child:hover{
-  transform:translateY(-2px);
-  box-shadow:
-    0 0 18px rgba(60,140,255,0.7),
-    0 8px 22px rgba(0,0,0,0.6);
-}
-
-/* ===================================================== */
-/* 50_CHART */
-/* ===================================================== */
-iframe{
-  border-radius:14px;
-  width:100%;
-  height:420px;
-  border:none;
-}
-
-/* ===================================================== */
-/* 60_MARKET_GRID */
+/* MARKET GRID */
 /* ===================================================== */
 .marketGrid{
   display:grid;
@@ -182,7 +121,10 @@ iframe{
   padding:14px;
   border-radius:14px;
   text-align:left;
-  box-shadow:0 4px 12px rgba(0,0,0,0.4);
+
+  box-shadow:
+    0 6px 16px rgba(0,0,0,0.45),
+    inset 0 1px 1px rgba(255,255,255,0.04);
 }
 
 .miniCard div:last-child{
@@ -192,7 +134,50 @@ iframe{
 }
 
 /* ===================================================== */
-/* 70_GAUGE */
+/* BUTTONS */
+/* ===================================================== */
+.btnCard{
+  display:flex;
+  gap:14px;
+}
+
+button{
+  flex:1;
+  padding:14px;
+  border-radius:14px;
+  border:none;
+  font-weight:800;
+  font-size:15px;
+  cursor:pointer;
+  color:black;
+  background:linear-gradient(180deg,#ff5f96,#ff3b7f);
+
+  box-shadow:
+    0 0 14px rgba(255,59,127,0.6),
+    0 6px 18px rgba(0,0,0,0.45);
+
+  transition:.2s ease;
+}
+
+button:hover{
+  transform:translateY(-2px);
+  box-shadow:
+    0 0 20px rgba(255,59,127,0.9),
+    0 10px 22px rgba(0,0,0,0.6);
+}
+
+/* ===================================================== */
+/* CHART */
+/* ===================================================== */
+iframe{
+  border-radius:14px;
+  width:100%;
+  height:420px;
+  border:none;
+}
+
+/* ===================================================== */
+/* GAUGE */
 /* ===================================================== */
 .gaugeArea{
   display:flex;
@@ -221,7 +206,7 @@ iframe{
 }
 
 /* ===================================================== */
-/* 80_HEADER */
+/* HEADER */
 /* ===================================================== */
 .header{
   display:flex;
@@ -232,19 +217,24 @@ iframe{
   margin:20px auto 10px;
 }
 
+/* ⭐ ONスイッチ風設定ボタン */
 .settingsBtn{
-  background:#1c2a44;
+  background:linear-gradient(180deg,#2b3f66,#18263f);
   color:white;
   border:none;
-  width:44px;
-  height:44px;
-  border-radius:50%;
-  font-size:20px;
-  box-shadow:0 0 12px rgba(255,80,120,0.4);
+  width:52px;
+  height:52px;
+  border-radius:28px;
+  font-size:22px;
+
+  box-shadow:
+    inset 0 2px 4px rgba(255,255,255,0.2),
+    inset 0 -3px 6px rgba(0,0,0,0.6),
+    0 6px 18px rgba(0,0,0,0.6);
 }
 
 /* ===================================================== */
-/* 90_FADE */
+/* FADE ANIMATION */
 /* ===================================================== */
 @keyframes fadeIn{
   from{
