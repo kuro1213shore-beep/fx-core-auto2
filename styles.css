@@ -5,8 +5,6 @@
   --bg1:#0a0f1c;
   --bg2:#101a2e;
   --card:#121f36;
-  --accent:#3ba6ff;
-  --danger:#ff3b7f;
   --text:#eaf2ff;
 }
 
@@ -25,7 +23,6 @@ h1{
   margin:30px 0 20px;
   font-weight:800;
   letter-spacing:3px;
-  text-shadow:0 0 18px rgba(80,160,255,0.35);
 }
 
 /* ===================================================== */
@@ -48,26 +45,30 @@ h1{
   margin:16px 0;
 
   box-shadow:
-    0 10px 30px rgba(0,0,0,0.55),
+    0 10px 28px rgba(0,0,0,0.55),
     inset 0 1px 1px rgba(255,255,255,0.05);
 
   animation:fadeIn .4s ease;
 }
 
-/* ⭐ ガラス反射 */
+/* ⭐ 上部ガラス反射 */
 .card::before{
   content:"";
   position:absolute;
   top:0;
   left:0;
   width:100%;
-  height:40%;
+  height:42%;
   border-radius:18px;
-  background:linear-gradient(to bottom, rgba(255,255,255,0.08), transparent);
+  background:linear-gradient(
+    to bottom,
+    rgba(255,255,255,0.08),
+    transparent
+  );
   pointer-events:none;
 }
 
-/* ⭐ 下部ネオン発光 */
+/* ⭐ 下部発光 */
 .card::after{
   content:"";
   position:absolute;
@@ -75,15 +76,16 @@ h1{
   bottom:-10px;
   width:80%;
   height:20px;
-  background:radial-gradient(ellipse at center, rgba(0,180,255,0.35), transparent 70%);
+  background:radial-gradient(
+    ellipse at center,
+    rgba(0,180,255,0.35),
+    transparent 70%
+  );
   filter:blur(12px);
-  opacity:.65;
+  opacity:.6;
   pointer-events:none;
 }
 
-/* ===================================================== */
-/* 31_ROW */
-/* ===================================================== */
 .row{
   display:flex;
   justify-content:space-between;
@@ -110,30 +112,50 @@ h1{
   gap:14px;
 }
 
+/* 共通 */
 button{
   flex:1;
   padding:14px;
   border-radius:14px;
   border:none;
-  font-weight:900;
+  font-weight:800;
   font-size:15px;
   cursor:pointer;
-
-  background:linear-gradient(180deg,#ff4b8a,#ff2f6d);
   color:white;
-
-  box-shadow:
-    0 6px 18px rgba(255,0,100,0.45),
-    inset 0 2px 4px rgba(255,255,255,0.25);
-
-  transition:.25s;
+  letter-spacing:1px;
+  transition:.25s ease;
 }
 
-button:hover{
+/* 🔴 AUTO ANALYZE */
+button:first-child{
+  background:linear-gradient(180deg,#ff4d4d,#b30021);
+
+  box-shadow:
+    0 0 10px rgba(255,60,60,0.45),
+    0 6px 18px rgba(0,0,0,0.5);
+}
+
+button:first-child:hover{
   transform:translateY(-2px);
   box-shadow:
-    0 10px 28px rgba(255,0,120,0.6),
-    0 0 20px rgba(255,0,120,0.4);
+    0 0 18px rgba(255,60,60,0.7),
+    0 8px 22px rgba(0,0,0,0.6);
+}
+
+/* 🔵 SAVE ENTRY */
+button:last-child{
+  background:linear-gradient(180deg,#4da3ff,#1b4fd8);
+
+  box-shadow:
+    0 0 10px rgba(60,140,255,0.45),
+    0 6px 18px rgba(0,0,0,0.5);
+}
+
+button:last-child:hover{
+  transform:translateY(-2px);
+  box-shadow:
+    0 0 18px rgba(60,140,255,0.7),
+    0 8px 22px rgba(0,0,0,0.6);
 }
 
 /* ===================================================== */
@@ -156,26 +178,11 @@ iframe{
 }
 
 .miniCard{
-  position:relative;
   background:linear-gradient(145deg,#111c30,#0d1628);
   padding:14px;
   border-radius:14px;
   text-align:left;
-
-  box-shadow:0 6px 16px rgba(0,0,0,0.45);
-}
-
-/* 小カード下部発光 */
-.miniCard::after{
-  content:"";
-  position:absolute;
-  bottom:-6px;
-  left:25%;
-  width:50%;
-  height:10px;
-  background:rgba(255,140,0,0.35);
-  filter:blur(8px);
-  opacity:.5;
+  box-shadow:0 4px 12px rgba(0,0,0,0.4);
 }
 
 .miniCard div:last-child{
@@ -198,7 +205,6 @@ iframe{
 .gaugeSvg{
   width:100%;
   max-width:260px;
-  height:auto;
 }
 
 .gaugeText{
@@ -234,11 +240,11 @@ iframe{
   height:44px;
   border-radius:50%;
   font-size:20px;
-  box-shadow:0 0 12px rgba(255,255,255,0.15);
+  box-shadow:0 0 12px rgba(255,80,120,0.4);
 }
 
 /* ===================================================== */
-/* 90_ANIMATION */
+/* 90_FADE */
 /* ===================================================== */
 @keyframes fadeIn{
   from{
