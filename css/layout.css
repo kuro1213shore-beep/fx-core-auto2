@@ -1,1 +1,5 @@
-1
+.wrap{
+  width:92%;
+  max-width:560px;
+  margin:auto;
+}
