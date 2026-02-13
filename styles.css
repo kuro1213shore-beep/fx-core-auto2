@@ -207,3 +207,28 @@ iframe{
   font-weight:700;
   margin-top:6px;
 }
+.gaugeRight{
+  position: relative;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+}
+
+.gaugeSvg{
+  width: 200px;
+  height: 120px;
+}
+
+.gaugeText{
+  position:absolute;
+  top:55px;
+  font-size:28px;
+  font-weight:700;
+}
+
+.strengthText{
+  margin-top:-10px;
+  font-size:14px;
+  opacity:0.8;
+}
