@@ -1,112 +1,89 @@
-/* ===================================================== */
-/* 00_IMPORT */
-/* ===================================================== */
+/* =========================
+   00_IMPORT
+========================= */
 import { calcScore } from "./score.js";
 import { analyzeLogic } from "./engine.js";
 import { updateUI, setText } from "./ui.js";
 
-/* ===================================================== */
-/* 10_UTIL */
-/* ===================================================== */
+
+/* =========================
+   10_UTIL
+========================= */
 function fmt(n){
-  return typeof n === "number" && !Number.isNaN(n)
-    ? n.toFixed(2)
+  return (typeof n === "number" && Number.isFinite(n))
+    ? Number(n).toFixed(3)
     : "--";
 }
 
-/* ===================================================== */
-/* 20_MARKET_DATA (安定取得版) */
-/* ===================================================== */
 
-async function getMarketData(){
-
-  // ★ ここを後でAPIに差し替え可能
-
-  return {
-    usdjpy: { price: 152.34, change: 0.12, rsi: 55 },
-    spPct: 0.42,
-    vixPct: -1.15,
-    tltPct: 0.30,
-    dxyPct: 0.28,
-    updatedAt: new Date().toLocaleTimeString()
-  };
-}
-
-/* ===================================================== */
-/* 30_ANALYZE */
-/* ===================================================== */
+/* =========================
+   20_ANALYZE
+========================= */
 async function autoAnalyze(){
 
-  try {
+  try{
 
-    const data = await getMarketData();
+    const res = await fetch("/api/market");
+    if(!res.ok) throw new Error("API ERROR");
 
-    /* ===== RAW DISPLAY ===== */
+    const data = await res.json();
 
-    setText("usdPrice", fmt(data.usdjpy.price));
-    setText("usdChange", fmt(data.usdjpy.change));
-    setText("usdRsi", fmt(data.usdjpy.rsi));
+    /* ===== 21_DISPLAY_RAW ===== */
+
+    setText("usdPrice", fmt(data.usdjpy?.price));
+    setText("usdChange", fmt(data.usdjpy?.change));
+    setText("usdRsi", fmt(data.usdjpy?.rsi));
 
     setText("sp", fmt(data.spPct));
     setText("vix", fmt(data.vixPct));
     setText("tlt", fmt(data.tltPct));
     setText("dxy", fmt(data.dxyPct));
+    setText("updatedAt", data.updatedAt || "--");
 
-    setText("updatedAt", data.updatedAt);
 
-    /* ===== SCORE ===== */
+    /* ===== 22_SCORE ===== */
 
     const { riskScore, usdScore, totalScore } = calcScore(data);
 
-    /* ===== LOGIC ===== */
+    setText("riskScore", riskScore);
+    setText("usdScore", usdScore);
+
+
+    /* ===== 22B_GAUGE ===== */
+
+    const max = 4;   // スコア最大想定
+    const percent = Math.round((Math.abs(totalScore) / max) * 100);
+
+    const fill = document.getElementById("gaugeFill");
+    const text = document.getElementById("gaugeText");
+
+    if(fill) fill.style.width = percent + "%";
+    if(text) text.innerText = percent + "%";
+
+    // TOTAL表示（％付き）
+    setText("totalScore", totalScore + " (" + percent + "%)");
+
+
+    /* ===== 23_LOGIC ===== */
 
     const result = analyzeLogic(data, riskScore, usdScore);
 
     setText("mode", result.mode || "RANGE");
 
-    /* ===== UI UPDATE ===== */
+
+    /* ===== 24_UI ===== */
 
     updateUI(result);
 
-    /* ===== GAUGE ===== */
 
-    const percent = Math.round(Math.abs(totalScore));
-
-    const arc = document.getElementById("gaugeArc");
-    const text = document.getElementById("gaugeText");
-    const strength = document.getElementById("strengthText");
-
-    const circumference = 251;
-
-    if (arc){
-      const offset = circumference - (percent / 100) * circumference;
-      arc.style.strokeDashoffset = offset;
-    }
-
-    if (text){
-      text.innerText = percent + "%";
-    }
-
-    if (strength){
-      if (percent >= 70) strength.innerText = "STRONG";
-      else if (percent >= 40) strength.innerText = "NEUTRAL";
-      else strength.innerText = "WEAK";
-    }
-
-  } catch (err){
-    console.error("Analyze Error:", err);
+  }catch(e){
+    console.error(e);
+    alert("API ERROR");
   }
 }
 
-/* ===================================================== */
-/* 90_GLOBAL */
-/* ===================================================== */
 
+/* =========================
+   90_GLOBAL
+========================= */
 window.autoAnalyze = autoAnalyze;
-
-window.saveEntry = function(){
-  alert("SAVE ENTRY not implemented yet");
-};
-
-/* 自動起動（ページ開いたら実行） */
-autoAnalyze();
