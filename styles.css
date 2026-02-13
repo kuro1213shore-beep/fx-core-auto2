@@ -284,3 +284,16 @@ iframe{
     transform:translateY(0);
   }
 }
+/* ===== ボタン無効状態 ===== */
+.btnDisabled{
+  opacity:0.35;
+  pointer-events:none;
+  filter:grayscale(40%);
+}
+
+/* ===== ボタン有効状態 ===== */
+.btnEnabled{
+  opacity:1;
+  pointer-events:auto;
+  filter:none;
+}
