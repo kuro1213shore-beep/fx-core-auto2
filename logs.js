@@ -108,24 +108,29 @@ export function getStats(){
 // 📱 ログ表示（スマホ用）
 // =======================
 export function showLogs(){
-
   const logs = getLogs();
 
-  if(logs.length === 0){
+  if(!logs.length){
     alert("No logs yet");
     return;
   }
 
   let text = "";
 
-  logs.slice(0,20).forEach(l => {
-    text += `${l.resultPips}p ${l.direction}\n`;
-    text += `Score:${l.totalScore}  ${l.mode}\n`;
-    text += `${l.session}\n`;
-    text += `---\n`;
+  logs.forEach(l => {
+    text += `
+${l.date}
+Mode: ${l.mode}
+Dir: ${l.direction}
+Score: ${l.totalScore}
+Result: ${l.resultPips} pips
+${l.comment || ""}
+----------------
+`;
   });
 
   alert(text);
+
 }
 
 // =======================
