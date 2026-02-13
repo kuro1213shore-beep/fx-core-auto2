@@ -1,1 +1,18 @@
-1
+iframe{
+  border-radius:14px;
+  width:100%;
+  height:420px;
+  border:none;
+}
+
+.btnDisabled{
+  opacity:0.35;
+  pointer-events:none;
+  filter:grayscale(40%);
+}
+
+.btnEnabled{
+  opacity:1;
+  pointer-events:auto;
+  filter:none;
+}
