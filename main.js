@@ -73,3 +73,5 @@ async function autoAnalyze(){
 window.autoAnalyze = autoAnalyze;
 window.showLogs = showLogs;
 window.showStats = showStats;
+document.getElementById("saveBtn").disabled = false;
+document.getElementById("logBtn").disabled = false;
