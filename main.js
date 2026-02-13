@@ -70,22 +70,30 @@ async function autoAnalyze() {
     /* 25_GAUGE */
     /* ===================================================== */
 
-    const max = 4; // 想定最大スコア（-4〜+4）
+ /* 22B_GAUGE */
+const max = 4;
+const percent = Math.round((Math.abs(totalScore) / max) * 100);
 
-    const percent = Math.round(
-      (Math.abs(totalScore) / max) * 100
-    );
+const arc = document.getElementById("gaugeArc");
+const text = document.getElementById("gaugeText");
+const strength = document.getElementById("strengthText");
 
-    const fill = document.getElementById("gaugeFill");
-    const text = document.getElementById("gaugeText");
+const circumference = 251; // 半円長さ
 
-    if (fill) fill.style.width = percent + "%";
-    if (text) text.innerText = percent + "%";
+if (arc){
+  const offset = circumference - (percent / 100) * circumference;
+  arc.style.strokeDashoffset = offset;
+}
 
-  } catch (e) {
-    console.error(e);
-    alert("API ERROR");
-  }
+if (text){
+  text.innerText = percent + "%";
+}
+
+if (strength){
+  if (percent >= 70) strength.innerText = "STRONG";
+  else if (percent >= 40) strength.innerText = "MODERATE";
+  else strength.innerText = "WEAK";
+
 }
 
 /* ===================================================== */
