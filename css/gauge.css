@@ -1,1 +1,23 @@
-1
+.gaugeArea{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+.gaugeSvg{
+  width:100%;
+  max-width:260px;
+}
+
+.gaugeText{
+  position:absolute;
+  margin-top:60px;
+  font-size:28px;
+  font-weight:800;
+}
+
+.strengthText{
+  margin-top:8px;
+  font-size:14px;
+  opacity:0.85;
+}
