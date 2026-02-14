@@ -1,1 +1,1 @@
-1
+import { getLogs, saveLogs } from "./storage.js";
