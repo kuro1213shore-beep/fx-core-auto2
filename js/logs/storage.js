@@ -13,14 +13,14 @@ export function saveLogs(logs){
   localStorage.setItem(STORAGE_KEY, JSON.stringify(logs));
 }
 
+export function deleteLog(index){
+  const logs = getLogs();
+  logs.splice(index, 1);
+  saveLogs(logs);
+}
+
 export function clearLogs(){
   if(confirm("Delete ALL logs?")){
     localStorage.removeItem(STORAGE_KEY);
   }
-}
-
-export function deleteLog(index){
-  const logs = getLogs();
-  logs.splice(index,1);
-  saveLogs(logs);
 }
