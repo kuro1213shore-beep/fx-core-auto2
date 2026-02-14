@@ -1,17 +1,13 @@
+console.log("main loaded");
+
 import { calcScore } from "./score.js";
 import { analyzeLogic } from "./engine.js";
 import { updateUI, setText } from "./ui.js";
 import { saveEntry } from "./logs/save.js";
 
-// ✅ ここで先にグローバルを必ず生やす（途中で落ちてもボタンが死ににくい）
-window.autoAnalyze = autoAnalyze;
-window.saveEntry  = saveEntry;
-window.showStats  = showStats;
-
-// もしここで落ちたら画面に出す（iPhone Safari対策）
-window.onerror = (msg, src, line, col) => {
-  alert(`JS ERROR:\n${msg}\n${line}:${col}`);
-};
+/* ===================== */
+/* FORMAT */
+/* ===================== */
 
 function fmt(n){
   if (n === null || n === undefined) return "--";
@@ -19,7 +15,12 @@ function fmt(n){
   return Number(n).toFixed(3);
 }
 
+/* ===================== */
+/* AUTO ANALYZE */
+/* ===================== */
+
 async function autoAnalyze(){
+
   try{
     const res = await fetch("/api/market");
     if(!res.ok) throw new Error("API ERROR");
@@ -49,17 +50,15 @@ async function autoAnalyze(){
     setText("totalScore", totalScore);
 
     const result = analyzeLogic(data, riskScore, usdScore, totalScore);
-
-    // 画面IDが無いと setText 内で落ちる場合があるので、最低限ガード
-    setText("mode", result?.mode || "RANGE");
+    setText("mode", result.mode || "RANGE");
     updateUI(result);
 
     window.lastResult = {
       time: new Date().toLocaleString(),
-      mode: result?.mode || "-",
-      env: result?.env || "-",
-      dir: result?.dir || "-",
-      order: result?.order || "-",
+      mode: result.mode || "-",
+      env: result.env || "-",
+      dir: result.dir || "-",
+      order: result.order || "-",
       riskScore,
       usdScore,
       totalScore,
@@ -68,7 +67,6 @@ async function autoAnalyze(){
       rsi: data.usdjpy?.rsi ?? "-"
     };
 
-    // GAUGE
     const arc = document.getElementById("gaugeArc");
     const gaugeText = document.getElementById("gaugeText");
     const strengthText = document.getElementById("strengthText");
@@ -76,39 +74,47 @@ async function autoAnalyze(){
     const percent = Math.round((Math.abs(totalScore || 0) / 4) * 100);
     const offset = 251 - (percent / 100) * 251;
 
-    if(arc) arc.style.strokeDashoffset = String(offset);
+    if(arc) arc.style.strokeDashoffset = offset;
     if(gaugeText) gaugeText.innerText = percent + "%";
 
     if(strengthText){
-      strengthText.innerText =
-        percent < 30 ? "WEAK" :
-        percent < 60 ? "NORMAL" :
-        percent < 80 ? "STRONG" : "EXTREME";
+      if(percent < 30) strengthText.innerText = "WEAK";
+      else if(percent < 60) strengthText.innerText = "NORMAL";
+      else if(percent < 80) strengthText.innerText = "STRONG";
+      else strengthText.innerText = "EXTREME";
     }
-
-    enableActionButtons();
 
   }catch(e){
     console.error(e);
-    alert("API ERROR / JS STOP");
+    alert("API ERROR");
+    return;
   }
+
+  enableButtons();
 }
 
-function enableActionButtons(){
+/* ===================== */
+/* BUTTON ENABLE */
+/* ===================== */
+
+function enableButtons(){
   const saveBtn = document.getElementById("saveBtn");
-  const logBtn  = document.getElementById("logBtn");
+  const logBtn = document.getElementById("logBtn");
 
   if(saveBtn){
     saveBtn.classList.remove("btnDisabled");
     saveBtn.classList.add("btnEnabled");
   }
+
   if(logBtn){
     logBtn.classList.remove("btnDisabled");
     logBtn.classList.add("btnEnabled");
   }
 }
 
-function showStats(){
-  // 最小：とりあえず落ちない
-  alert("STATS (placeholder)");
-}
+/* ===================== */
+/* GLOBAL */
+/* ===================== */
+
+window.autoAnalyze = autoAnalyze;
+window.saveEntry = saveEntry;
