@@ -83,8 +83,7 @@ async function autoAnalyze(){
   }catch(e){
   console.error("ERROR DETAILS:", e);
   alert(e.message);
-}
-  }
+
 }
 
 /* ========= BUTTON ENABLE ========= */
