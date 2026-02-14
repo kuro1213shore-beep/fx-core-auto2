@@ -1,35 +1,112 @@
-import { getLogs } from "./storage.js";
+import { getLogs, deleteLog } from "./storage.js";
 
-console.log("viewer loaded"); // ← 読み込み確認
+console.log("viewer loaded");
 
-export function showLogs(){
+/* =========================
+   画面表示
+========================= */
+function renderLogs(){
+  const container = document.getElementById("logTable");
+  if(!container) return;
+
   const logs = getLogs();
 
   if(!logs.length){
-    alert("No logs yet");
+    container.innerHTML = `
+      <p style="opacity:.6;padding:20px;">
+        No logs yet
+      </p>
+    `;
     return;
   }
 
-  let text = "";
+  container.innerHTML = logs.map((log, index) => `
+    <div class="logRowWrap">
 
-  logs.forEach(l => {
-    text += `
-${l.date}
-${l.session} | ${l.mode}
+      <div class="deleteBg">DEL</div>
 
-ENV: ${l.env} / DIR: ${l.dir}
-ORDER: ${l.order}
+      <div class="logRow">
+        <div style="padding:14px">
 
-Score: ${l.totalScore}
-Result: ${l.resultPips} pips
-${l.comment || ""}
-----------------
-`;
-  });
+          <div style="font-weight:600">
+            ${log.date}
+          </div>
 
-  alert(text);
+          <div style="opacity:.6;font-size:12px">
+            ${log.session} | ${log.mode}
+          </div>
+
+          <div style="margin-top:6px">
+            ENV: ${log.env} / DIR: ${log.dir}
+          </div>
+
+          <div>
+            ORDER: ${log.order}
+          </div>
+
+          <div style="margin-top:6px">
+            Score: ${log.totalScore}
+          </div>
+
+          <div style="font-weight:600">
+            Result: ${log.resultPips} pips
+          </div>
+
+          ${log.comment ? `<div style="opacity:.7">${log.comment}</div>` : ""}
+
+        </div>
+      </div>
+
+    </div>
+  `).join("");
+
+  enableSwipeDelete();
 }
 
+/* =========================
+   スワイプ削除
+========================= */
+function enableSwipeDelete(){
+  const wraps = document.querySelectorAll(".logRowWrap");
+
+  wraps.forEach((wrap, index) => {
+    const row = wrap.querySelector(".logRow");
+    const bg = wrap.querySelector(".deleteBg");
+
+    let startX = 0;
+    let currentX = 0;
+
+    wrap.addEventListener("touchstart", e => {
+      startX = e.touches[0].clientX;
+    });
+
+    wrap.addEventListener("touchmove", e => {
+      currentX = e.touches[0].clientX;
+      const diff = currentX - startX;
+
+      if(diff < 0){
+        row.style.transform = `translateX(${diff}px)`;
+        bg.style.opacity = "1";
+      }
+    });
+
+    wrap.addEventListener("touchend", () => {
+      const diff = currentX - startX;
+
+      if(diff < -80){
+        deleteLog(index);
+        renderLogs();
+      }else{
+        row.style.transform = "";
+        bg.style.opacity = "0";
+      }
+    });
+  });
+}
+
+/* =========================
+   統計
+========================= */
 export function showStats(){
   const logs = getLogs();
 
@@ -48,3 +125,8 @@ Total: ${totalPips} pips
 Avg: ${Math.round(totalPips/logs.length)} pips`
   );
 }
+
+/* =========================
+   起動時に表示
+========================= */
+document.addEventListener("DOMContentLoaded", renderLogs);
