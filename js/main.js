@@ -20,7 +20,7 @@ function fmt(n){
 async function autoAnalyze(){
 
   try{
-    const res = await fetch("/api/market");
+    const res = await fetch("https://fx-core-auto.vercel.app/api/market");
     if(!res.ok) throw new Error("API ERROR");
 
     const data = await res.json();
