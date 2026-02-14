@@ -12,11 +12,8 @@ function renderLogs(){
   const logs = getLogs();
 
   if(!logs.length){
-    container.innerHTML = `
-      <p style="opacity:.6;padding:20px;">
-        No logs yet
-      </p>
-    `;
+    container.innerHTML =
+      `<p style="opacity:.6;padding:20px;">No logs yet</p>`;
     return;
   }
 
@@ -29,27 +26,27 @@ function renderLogs(){
         <div style="padding:14px">
 
           <div style="font-weight:600">
-            ${log.date}
+            ${log.time || "-"}
           </div>
 
           <div style="opacity:.6;font-size:12px">
-            ${log.session} | ${log.mode}
+            ${(log.session || "-")} | ${(log.mode || "-")}
           </div>
 
           <div style="margin-top:6px">
-            ENV: ${log.env} / DIR: ${log.dir}
+            ENV: ${(log.env || "-")} / DIR: ${(log.dir || "-")}
           </div>
 
           <div>
-            ORDER: ${log.order}
+            ORDER: ${(log.order || "-")}
           </div>
 
           <div style="margin-top:6px">
-            Score: ${log.totalScore}
+            Score: ${log.totalScore ?? "-"}
           </div>
 
           <div style="font-weight:600">
-            Result: ${log.resultPips} pips
+            Result: ${log.resultPips ?? "-"} pips
           </div>
 
           ${log.comment ? `<div style="opacity:.7">${log.comment}</div>` : ""}
@@ -116,7 +113,7 @@ export function showStats(){
   }
 
   const wins = logs.filter(l => l.win).length;
-  const totalPips = logs.reduce((s,l)=>s+l.resultPips,0);
+  const totalPips = logs.reduce((s,l)=>s + (l.resultPips || 0), 0);
 
   alert(
 `Trades: ${logs.length}
