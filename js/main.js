@@ -1,3 +1,5 @@
+alert("MAIN JS LOADED");
+
 import { calcScore } from "./score.js";
 import { analyzeLogic } from "./engine.js";
 import { updateUI, setText } from "./ui.js";
