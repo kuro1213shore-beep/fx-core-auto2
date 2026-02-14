@@ -32,7 +32,7 @@ function enableSwipe(row, index){
     currentX = e.touches[0].clientX;
     const diff = currentX - startX;
 
-    // 横スワイプ検知（縦スクロールを邪魔しない）
+    // 横スワイプ検知（縦スクロール妨害防止）
     if(Math.abs(diff) > 10){
       isSwiping = true;
     }
@@ -41,14 +41,15 @@ function enableSwipe(row, index){
       row.classList.add("swiping");
       row.style.transform = `translateX(${diff}px)`;
 
-　　　// 背景表示
-　　　const bg = row.previousElementSibling;
-　　　if(bg) bg.style.opacity = 1;
+      // 背景表示
+      const bg = row.previousElementSibling;
+      if(bg) bg.style.opacity = 1;
     }
   });
 
   row.addEventListener("touchend", ()=>{
     const diff = currentX - startX;
+    const bg = row.previousElementSibling;
 
     if(isSwiping && diff < -80){
       deleteLog(index);
@@ -57,6 +58,8 @@ function enableSwipe(row, index){
 
     row.style.transform = "translateX(0)";
     row.classList.remove("swiping");
+
+    if(bg) bg.style.opacity = 0;
   });
 }
 
