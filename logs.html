@@ -8,17 +8,33 @@
 <link rel="stylesheet" href="./css/base.css">
 <link rel="stylesheet" href="./css/cards.css">
 
+<style>
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:14px;
+}
+
+th, td{
+  padding:10px;
+  border-bottom:1px solid rgba(255,255,255,0.08);
+  text-align:left;
+}
+
+th{
+  opacity:0.6;
+  font-size:12px;
+}
+</style>
+
 </head>
 <body>
 
 <div class="wrap">
   <h2>TRADE LOG</h2>
-
-  <!-- ログ表示エリア -->
   <div id="logTable"></div>
 </div>
 
-<!-- ⚠️ bodyの一番下で読み込む（重要） -->
 <script type="module" src="./js/logsView.js"></script>
 
 </body>
