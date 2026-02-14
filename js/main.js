@@ -3,56 +3,22 @@ import { analyzeLogic } from "./engine.js";
 import { updateUI, setText } from "./ui.js";
 import { saveEntry } from "./logs/save.js";
 
-/* ===================== */
-/* FORMAT */
-/* ===================== */
+// ✅ ここで先にグローバルを必ず生やす（途中で落ちてもボタンが死ににくい）
+window.autoAnalyze = autoAnalyze;
+window.saveEntry  = saveEntry;
+window.showStats  = showStats;
+
+// もしここで落ちたら画面に出す（iPhone Safari対策）
+window.onerror = (msg, src, line, col) => {
+  alert(`JS ERROR:\n${msg}\n${line}:${col}`);
+};
+
 function fmt(n){
   if (n === null || n === undefined) return "--";
   if (typeof n !== "number" || !Number.isFinite(n)) return "--";
   return Number(n).toFixed(3);
 }
 
-/* ===================== */
-/* LOGS (main.js内で完結させる) */
-/*   ※ importミスで死ぬのを防ぐ */
-/* ===================== */
-const STORAGE_KEY = "fx_logs";
-
-function getLogsSafe(){
-  try{
-    const raw = localStorage.getItem(STORAGE_KEY);
-    const arr = raw ? JSON.parse(raw) : [];
-    return Array.isArray(arr) ? arr : [];
-  }catch{
-    return [];
-  }
-}
-
-function showStats(){
-  const logs = getLogsSafe();
-  if(!logs.length){
-    alert("No data");
-    return;
-  }
-
-  const wins = logs.filter(l => !!l.win).length;
-
-  const totalPips = logs.reduce((sum, l) => {
-    const v = Number(l?.resultPips);
-    return sum + (Number.isFinite(v) ? v : 0);
-  }, 0);
-
-  alert(
-`Trades: ${logs.length}
-WinRate: ${Math.round((wins / logs.length) * 100)}%
-Total: ${totalPips} pips
-Avg: ${Math.round(totalPips / logs.length)} pips`
-  );
-}
-
-/* ===================== */
-/* AUTO ANALYZE */
-/* ===================== */
 async function autoAnalyze(){
   try{
     const res = await fetch("/api/market");
@@ -60,14 +26,12 @@ async function autoAnalyze(){
 
     const data = await res.json();
 
-    // CHANGE 自動判定
     const change =
       data.usdjpy?.change ??
       data.usdjpy?.changePct ??
       data.usdjpy?.delta ??
       null;
 
-    // DISPLAY
     setText("usdPrice", fmt(data.usdjpy?.price));
     setText("usdChange", fmt(change));
     setText("usdRsi", fmt(data.usdjpy?.rsi));
@@ -78,25 +42,24 @@ async function autoAnalyze(){
     setText("dxy", fmt(data.dxyPct));
     setText("updatedAt", data.updatedAt || "--");
 
-    // SCORE
     const { riskScore, usdScore, totalScore } = calcScore(data);
 
     setText("riskScore", riskScore);
     setText("usdScore", usdScore);
     setText("totalScore", totalScore);
 
-    // LOGIC
     const result = analyzeLogic(data, riskScore, usdScore, totalScore);
-    setText("mode", result.mode || "RANGE");
+
+    // 画面IDが無いと setText 内で落ちる場合があるので、最低限ガード
+    setText("mode", result?.mode || "RANGE");
     updateUI(result);
 
-    // 最新分析結果保存
     window.lastResult = {
       time: new Date().toLocaleString(),
-      mode: result.mode || "-",
-      env: result.env || "-",
-      dir: result.dir || "-",
-      order: result.order || "-",
+      mode: result?.mode || "-",
+      env: result?.env || "-",
+      dir: result?.dir || "-",
+      order: result?.order || "-",
       riskScore,
       usdScore,
       totalScore,
@@ -117,23 +80,20 @@ async function autoAnalyze(){
     if(gaugeText) gaugeText.innerText = percent + "%";
 
     if(strengthText){
-      if(percent < 30) strengthText.innerText = "WEAK";
-      else if(percent < 60) strengthText.innerText = "NORMAL";
-      else if(percent < 80) strengthText.innerText = "STRONG";
-      else strengthText.innerText = "EXTREME";
+      strengthText.innerText =
+        percent < 30 ? "WEAK" :
+        percent < 60 ? "NORMAL" :
+        percent < 80 ? "STRONG" : "EXTREME";
     }
 
     enableActionButtons();
 
   }catch(e){
     console.error(e);
-    alert("API ERROR");
+    alert("API ERROR / JS STOP");
   }
 }
 
-/* ===================== */
-/* BUTTON ENABLE */
-/* ===================== */
 function enableActionButtons(){
   const saveBtn = document.getElementById("saveBtn");
   const logBtn  = document.getElementById("logBtn");
@@ -141,23 +101,14 @@ function enableActionButtons(){
   if(saveBtn){
     saveBtn.classList.remove("btnDisabled");
     saveBtn.classList.add("btnEnabled");
-    // btnDisabled が pointer-events:none の場合があるので保険
-    saveBtn.style.pointerEvents = "auto";
   }
-
   if(logBtn){
     logBtn.classList.remove("btnDisabled");
     logBtn.classList.add("btnEnabled");
-    logBtn.style.pointerEvents = "auto";
   }
 }
 
-/* ===================== */
-/* GLOBAL */
-/* ===================== */
-window.autoAnalyze = autoAnalyze;
-window.saveEntry  = saveEntry;
-window.showStats  = showStats;
-
-// 目視確認用（いらなくなったら消してOK）
-console.log("main.js loaded");
+function showStats(){
+  // 最小：とりあえず落ちない
+  alert("STATS (placeholder)");
+}
