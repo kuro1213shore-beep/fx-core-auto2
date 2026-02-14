@@ -1,13 +1,13 @@
 console.log("main loaded");
 
+/* ========= IMPORT ========= */
+
 import { calcScore } from "./score.js";
 import { analyzeLogic } from "./engine.js";
 import { updateUI, setText } from "./ui.js";
 import { saveEntry } from "./logs/save.js";
 
-/* ===================== */
-/* FORMAT */
-/* ===================== */
+/* ========= FORMAT ========= */
 
 function fmt(n){
   if (n === null || n === undefined) return "--";
@@ -15,9 +15,7 @@ function fmt(n){
   return Number(n).toFixed(3);
 }
 
-/* ===================== */
-/* AUTO ANALYZE */
-/* ===================== */
+/* ========= AUTO ANALYZE ========= */
 
 async function autoAnalyze(){
 
@@ -27,11 +25,15 @@ async function autoAnalyze(){
 
     const data = await res.json();
 
+    console.log("API:", data);
+
     const change =
       data.usdjpy?.change ??
       data.usdjpy?.changePct ??
       data.usdjpy?.delta ??
       null;
+
+    /* ===== DISPLAY ===== */
 
     setText("usdPrice", fmt(data.usdjpy?.price));
     setText("usdChange", fmt(change));
@@ -43,29 +45,21 @@ async function autoAnalyze(){
     setText("dxy", fmt(data.dxyPct));
     setText("updatedAt", data.updatedAt || "--");
 
+    /* ===== SCORE ===== */
+
     const { riskScore, usdScore, totalScore } = calcScore(data);
 
     setText("riskScore", riskScore);
     setText("usdScore", usdScore);
     setText("totalScore", totalScore);
 
+    /* ===== LOGIC ===== */
+
     const result = analyzeLogic(data, riskScore, usdScore, totalScore);
     setText("mode", result.mode || "RANGE");
     updateUI(result);
 
-    window.lastResult = {
-      time: new Date().toLocaleString(),
-      mode: result.mode || "-",
-      env: result.env || "-",
-      dir: result.dir || "-",
-      order: result.order || "-",
-      riskScore,
-      usdScore,
-      totalScore,
-      price: data.usdjpy?.price ?? "-",
-      change: change ?? "-",
-      rsi: data.usdjpy?.rsi ?? "-"
-    };
+    /* ===== GAUGE ===== */
 
     const arc = document.getElementById("gaugeArc");
     const gaugeText = document.getElementById("gaugeText");
@@ -84,18 +78,15 @@ async function autoAnalyze(){
       else strengthText.innerText = "EXTREME";
     }
 
+    enableButtons();
+
   }catch(e){
     console.error(e);
     alert("API ERROR");
-    return;
   }
-
-  enableButtons();
 }
 
-/* ===================== */
-/* BUTTON ENABLE */
-/* ===================== */
+/* ========= BUTTON ENABLE ========= */
 
 function enableButtons(){
   const saveBtn = document.getElementById("saveBtn");
@@ -112,9 +103,8 @@ function enableButtons(){
   }
 }
 
-/* ===================== */
-/* GLOBAL */
-/* ===================== */
+/* ========= GLOBAL ========= */
 
 window.autoAnalyze = autoAnalyze;
 window.saveEntry = saveEntry;
+window.showStats = () => location.href="logs.html";
