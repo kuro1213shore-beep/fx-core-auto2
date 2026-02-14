@@ -4,14 +4,25 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Settings - FX CORE AUTO</title>
+
 <link rel="stylesheet" href="./css/base.css">
 <link rel="stylesheet" href="./css/layout.css">
 <link rel="stylesheet" href="./css/cards.css">
 <link rel="stylesheet" href="./css/buttons.css">
 <link rel="stylesheet" href="./css/header.css">
 <link rel="stylesheet" href="./css/utilities.css">
-</head>
 
+<style>
+.settingInput{
+  width:90px;
+  padding:6px;
+  border-radius:8px;
+  border:none;
+  text-align:right;
+}
+</style>
+
+</head>
 <body>
 
 <div class="wrap">
@@ -20,56 +31,74 @@
   <div id="settingsRoot"></div>
 
   <div class="card btnCard">
-    <button onclick="save()">SAVE</button>
+    <button onclick="saveSettings()">SAVE</button>
+    <button onclick="resetSettings()">RESET</button>
     <button onclick="location.href='index.html'">BACK</button>
   </div>
 </div>
 
 <script type="module">
-
 import { loadConfig, saveConfig } from "./config.js";
 
 const root = document.getElementById("settingsRoot");
 let config = loadConfig();
 
-/* ======================================== */
-/* UI BUILD */
-/* ======================================== */
+/* ============================= */
+/* INPUT FIELD */
+/* ============================= */
 
 function numberInput(label, path, value){
   return `
     <div class="row">
       <span>${label}</span>
-      <input type="number" step="0.01"
+      <input
+        type="number"
+        step="0.01"
         data-path="${path}"
-        value="${value}"
-        class="settingInput" />
+        value="${value ?? ""}"
+        placeholder="${value}"
+        class="settingInput"
+      />
     </div>
   `;
 }
 
+/* ============================= */
+/* BUILD SECTION */
+/* ============================= */
+
 function buildSection(title, obj, prefix){
-  let html = `<div class="card"><h3>${title}</h3>`;
+  let html = `<div class="card"><h3>${title.toUpperCase()}</h3>`;
+
   for(const key in obj){
     if(typeof obj[key] === "object"){
       html += buildSection(key, obj[key], prefix + "." + key);
     }else{
-      html += numberInput(key, prefix + "." + key, obj[key]);
+      const label = key.replace(/([A-Z])/g," $1");
+      html += numberInput(label, prefix + "." + key, obj[key]);
     }
   }
+
   html += "</div>";
   return html;
 }
 
+/* ============================= */
+/* RENDER */
+/* ============================= */
+
 root.innerHTML =
   buildSection("TREND", config.trend, "trend") +
-  buildSection("RANGE", config.range, "range");
+  buildSection("RANGE", config.range, "range") +
+  (config.risk ? buildSection("RISK", config.risk, "risk") : "") +
+  (config.entry ? buildSection("ENTRY", config.entry, "entry") : "") +
+  (config.filters ? buildSection("FILTERS", config.filters, "filters") : "");
 
-/* ======================================== */
+/* ============================= */
 /* SAVE */
-/* ======================================== */
+/* ============================= */
 
-window.save = function(){
+window.saveSettings = function(){
 
   const inputs = document.querySelectorAll(".settingInput");
 
@@ -81,12 +110,28 @@ window.save = function(){
       ref = ref[path[i]];
     }
 
-    ref[path[path.length-1]] = parseFloat(input.value);
+    const val = parseFloat(input.value);
+
+    // NaN防止（重要）
+    if(!isNaN(val)){
+      ref[path[path.length-1]] = val;
+    }
   });
 
   saveConfig(config);
 
-  alert("Saved.");
+  alert("Saved ✔");
+};
+
+/* ============================= */
+/* RESET */
+/* ============================= */
+
+window.resetSettings = function(){
+  if(confirm("Reset settings to default?")){
+    localStorage.removeItem("fx_config");
+    location.reload();
+  }
 };
 
 </script>
