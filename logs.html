@@ -29,6 +29,62 @@ th{
   opacity:0.6;
   font-size:12px;
 }
+
+.wrap{
+  padding:20px;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:14px;
+}
+
+th, td{
+  padding:12px;
+  border-bottom:1px solid rgba(255,255,255,0.08);
+  text-align:left;
+}
+
+th{
+  opacity:0.6;
+  font-size:12px;
+}
+
+/* ===== スワイプ用 ===== */
+
+.logRowWrap{
+  position: relative;
+  overflow: hidden;
+  touch-action: pan-y;
+}
+
+.deleteBg{
+  position:absolute;
+  right:0;
+  top:0;
+  bottom:0;
+  width:80px;
+  background:#ff3b30;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:white;
+  font-weight:bold;
+  z-index:0;
+}
+
+.logRow{
+  position:relative;
+  background: transparent;
+  transition: transform .2s ease;
+  touch-action: pan-y;
+  z-index:1;
+}
+
+.logRow.swiping{
+  touch-action: none;
+}
 </style>
 </head>
 
