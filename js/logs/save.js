@@ -1,4 +1,4 @@
-import { addLog } from "./logs.js";
+import { getLogs, saveLogs } from "./storage.js";
 import { chooseDirection } from "./modals.js";
 
 export async function saveEntry(){
@@ -8,20 +8,34 @@ export async function saveEntry(){
     return;
   }
 
-  const resultPips = Number(prompt("Result pips"));
+  const resultPipsInput = prompt("Result pips?");
+  if(resultPipsInput === null) return;
+
+  const resultPips = Number(resultPipsInput);
+  if(Number.isNaN(resultPips)){
+    alert("Enter number");
+    return;
+  }
 
   const direction = await chooseDirection();
   if(!direction) return;
 
+  const comment = prompt("Comment") || "";
+
+  const logs = getLogs();
+
   const log = {
-    ...window.lastResult,
+    id: Date.now(),
+    date: new Date().toLocaleString(),
     direction,
     resultPips,
     win: resultPips >= 0,
-    session: "AUTO"
+    ...window.lastResult,
+    comment
   };
 
-  addLog(log);
+  logs.unshift(log);
+  saveLogs(logs);
 
   alert("Saved ✔");
 }
