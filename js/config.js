@@ -146,4 +146,11 @@ export function getLossStreak(logs) {
   return streak;
 }
 
-export const CONFIG = loadConfig();
+export const CONFIG = (() => {
+  try {
+    return loadConfig();
+  } catch (e) {
+    console.error("CONFIG LOAD ERROR", e);
+    return getDefaultConfig();
+  }
+})();
