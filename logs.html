@@ -6,9 +6,14 @@
 <title>Trade Logs</title>
 
 <link rel="stylesheet" href="./css/base.css">
+<link rel="stylesheet" href="./css/layout.css">
 <link rel="stylesheet" href="./css/cards.css">
+<link rel="stylesheet" href="./css/header.css">
+<link rel="stylesheet" href="./css/utilities.css">
 
 <style>
+/* ===== table ===== */
+
 table{
   width:100%;
   border-collapse:collapse;
@@ -25,13 +30,44 @@ th{
   opacity:0.6;
   font-size:12px;
 }
-</style>
 
+/* ===== swipe delete ===== */
+
+.logRowWrap{
+  position: relative;
+  overflow: hidden;
+}
+
+.deleteBg{
+  position:absolute;
+  right:0;
+  top:0;
+  bottom:0;
+  width:80px;
+  background:#ff3b30;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:white;
+  font-weight:bold;
+}
+
+.logRow{
+  background:transparent;
+  transition: transform .2s ease;
+  touch-action: pan-y;
+}
+</style>
 </head>
+
 <body>
 
+<div class="header">
+  <h1>TRADE LOG</h1>
+  <button class="settingsBtn" onclick="location.href='index.html'"></button>
+</div>
+
 <div class="wrap">
-  <h2>TRADE LOG</h2>
   <div id="logTable"></div>
 </div>
 
