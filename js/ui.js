@@ -1,14 +1,8 @@
-/* ========================================= */
-/* 00_SET_TEXT */
-/* ========================================= */
 export function setText(id, value){
   const el = document.getElementById(id);
   if(el) el.innerText = value;
 }
 
-/* ========================================= */
-/* 10_THEME */
-/* ========================================= */
 function setTheme(mode){
   document.body.classList.remove("long-mode","short-mode","range-mode");
 
@@ -21,12 +15,8 @@ function setTheme(mode){
   }
 }
 
-/* ========================================= */
-/* 20_UPDATE_UI */
-/* ========================================= */
 export function updateUI(result){
 
-  // ---- テキスト更新 ----
   setText("env", result.env);
   setText("dir", result.dir);
   setText("rsiSignal", result.rsiSignal);
@@ -34,18 +24,10 @@ export function updateUI(result){
 
   setTheme(result.mode);
 
-  // ---- ゲージ計算 ----
-  const max = 4; // 最大スコア（今のロジックに合わせて）
-  const raw = Math.abs(result.totalScore || 0);
-
-  const percent = Math.min(
-    100,
-    Math.round((raw / max) * 100)
-  );
-
+  /* SAFE GAUGE */
   const fill = document.getElementById("gaugeFill");
   const text = document.getElementById("gaugeText");
 
-  if(fill) fill.style.width = percent + "%";
-  if(text) text.innerText = percent + "%";
+  if(fill) fill.style.width = "0%";
+  if(text) text.innerText = "--";
 }
