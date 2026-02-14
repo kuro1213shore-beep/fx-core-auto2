@@ -20,11 +20,13 @@ function fmt(n){
 async function autoAnalyze(){
 
   try{
+
+    // ✅ API直接指定（CORS回避 & 安定）
     const res = await fetch("https://fx-core-auto.vercel.app/api/market");
-    if(!res.ok) throw new Error("API ERROR");
+
+    if(!res.ok) throw new Error("API response error");
 
     const data = await res.json();
-
     console.log("API:", data);
 
     const change =
@@ -81,8 +83,9 @@ async function autoAnalyze(){
     enableButtons();
 
   }catch(e){
-  console.error("ERROR DETAILS:", e);
-  alert(e.message);
+    console.error("ERROR:", e);
+    alert(e.message);
+  }
 
 }
 
