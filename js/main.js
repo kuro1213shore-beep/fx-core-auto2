@@ -20,13 +20,17 @@ function fmt(n){
 async function autoAnalyze(){
 
   try{
+
+    // ★ API取得
     const res = await fetch("https://fx-core-auto.vercel.app/api/market");
+
     if(!res.ok) throw new Error("API ERROR");
 
     const data = await res.json();
 
     console.log("API:", data);
 
+    // change値取得（安全）
     const change =
       data.usdjpy?.change ??
       data.usdjpy?.changePct ??
@@ -56,8 +60,13 @@ async function autoAnalyze(){
     /* ===== LOGIC ===== */
 
     const result = analyzeLogic(data, riskScore, usdScore, totalScore);
+
     setText("mode", result.mode || "RANGE");
-    updateUI(result);
+
+    updateUI({
+      ...result,
+      totalScore
+    });
 
     /* ===== GAUGE ===== */
 
@@ -81,14 +90,17 @@ async function autoAnalyze(){
     enableButtons();
 
   }catch(e){
-    console.error(e);
-    alert("API ERROR");
+
+    console.error("ERROR:", e);
+    alert("Load failed");
+
   }
 }
 
 /* ========= BUTTON ENABLE ========= */
 
 function enableButtons(){
+
   const saveBtn = document.getElementById("saveBtn");
   const logBtn = document.getElementById("logBtn");
 
