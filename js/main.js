@@ -1,7 +1,8 @@
 import { calcScore } from "./score.js";
 import { analyzeLogic } from "./engine.js";
 import { updateUI, setText } from "./ui.js";
-import { showLogs, showStats, saveEntry } from "./logs.js";
+import { showLogs, showStats } from "./logs/viewer.js";
+import { saveEntry } from "./logs/save.js";
 
 /* ===================== */
 /* FORMAT */
