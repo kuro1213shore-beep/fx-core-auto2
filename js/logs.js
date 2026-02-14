@@ -35,7 +35,9 @@ export function saveEntry(){
     return;
   }
 
-  const direction = prompt("Direction? LONG / SHORT") || "-";
+ const direction = confirm("LONGにしますか？\nキャンセル → SHORT")
+  ? "LONG"
+  : "SHORT";
   const comment = prompt("Comment (optional)") || "";
 
   const log = {
