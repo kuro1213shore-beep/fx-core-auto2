@@ -94,22 +94,31 @@
 
 <!-- BUTTON -->
 
-<div class="card btnCard">
-  <button onclick="autoAnalyze()">AUTO ANALYZE</button>
+<!-- BUTTON AREA -->
+<div class="card btnCard mainActions">
 
-  <button id="saveBtn"
-          class="btnDisabled"
-          onclick="saveEntry()">
-    SAVE ENTRY
+  <button class="primaryBtn" onclick="autoAnalyze()">
+    AUTO ANALYZE
   </button>
 
-  <button id="logBtn"
-          class="btnDisabled"
-          onclick="location.href='logs.html'"
-    LOG
+  <div class="subActions">
+    <button id="saveBtn"
+            class="saveBtn btnDisabled"
+            onclick="saveEntry()">
+      ✔ SAVE ENTRY
+    </button>
+
+    <button id="logBtn"
+            class="logBtn btnDisabled"
+            onclick="location.href='logs.html'">
+      📄 LOG
+    </button>
+  </div>
+
+  <button class="statsBtn" onclick="showStats()">
+    📊 STATS
   </button>
 
-  <button onclick="showStats()">STATS</button>
 </div>
 
     <!-- CHART -->
