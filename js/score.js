@@ -13,7 +13,6 @@ function num(x) {
   return (typeof x === "number" && Number.isFinite(x)) ? x : null;
 }
 
-// 「上なら +1、下なら -1」みたいな符号判定（0 は 0）
 function signScore(v) {
   if (v === null) return 0;
   if (v > 0) return 1;
@@ -21,7 +20,6 @@ function signScore(v) {
   return 0;
 }
 
-// 重み付きで加算（例: sp が +なら +w、-なら -w）
 function weightedSign(v, w) {
   const s = signScore(v);
   const ww = (typeof w === "number" && Number.isFinite(w)) ? w : 0;
@@ -33,7 +31,6 @@ function weightedSign(v, w) {
 /* ===================================================== */
 
 function pickMode(data) {
-  // ここが "RANGE" / "UPTREND" / "DOWNTREND" を返す想定
   const m = data?.usdjpy?.marketMode;
   return (typeof m === "string" && m.length) ? m : "RANGE";
 }
@@ -43,11 +40,25 @@ function pickMode(data) {
 /* ===================================================== */
 
 export function calcScore(data) {
+
   const cfg = loadConfig();
+  const settings = getSettings();
+
   const mode = pickMode(data);
   const mcfg = getModeConfig(mode, cfg);
 
-  // --- inputs（%変化が入る想定） ---
+  /* ===== MODE WEIGHT ===== */
+
+  let weight = 1;
+
+  if (mode === "UPTREND" || mode === "DOWNTREND") {
+    weight = settings?.trendWeight ?? 1;
+  } else {
+    weight = settings?.rangeWeight ?? 1;
+  }
+
+  /* ===== INPUTS (%変化) ===== */
+
   const sp  = num(data?.spPct);
   const vix = num(data?.vixPct);
   const tlt = num(data?.tltPct);
@@ -56,26 +67,23 @@ export function calcScore(data) {
   /* ===================================================== */
   /* 31_RISK_SCORE */
   /* ===================================================== */
-  // あなたの現行ロジック互換：
-  // SP: 上で risk+ / 下で risk-
-  // VIX: 下で risk+ / 上で risk-
-  // TLT: 下で risk+ / 上で risk-
-  // ※ weights で強弱付ける
 
   const wRisk = mcfg?.weights?.risk || {};
   let riskScore = 0;
 
-  riskScore += weightedSign(sp,  wRisk.sp);
+  // SP: 上昇 = risk ON
+  riskScore += weightedSign(sp, wRisk.sp);
 
-  // VIX は「上がる＝リスクオフ」なので符号反転
+  // VIX: 上昇 = risk OFF → 符号反転
   riskScore += weightedSign(vix !== null ? -vix : null, wRisk.vix);
 
-  // TLT は「上がる＝リスクオフ」になりがちなので符号反転（現行互換）
+  // TLT: 上昇 = risk OFF → 符号反転
   riskScore += weightedSign(tlt !== null ? -tlt : null, wRisk.tlt);
 
   /* ===================================================== */
   /* 32_USD_SCORE */
   /* ===================================================== */
+
   const wUsd = mcfg?.weights?.usd || {};
   let usdScore = 0;
 
@@ -84,7 +92,14 @@ export function calcScore(data) {
   /* ===================================================== */
   /* 33_TOTAL */
   /* ===================================================== */
-  const totalScore = riskScore + usdScore;
 
-  return { riskScore, usdScore, totalScore };
+  const totalScore = Math.round((riskScore + usdScore) * weight);
+
+  return {
+    riskScore,
+    usdScore,
+    totalScore,
+    mode,
+    weight
+  };
 }
