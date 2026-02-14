@@ -1,47 +1,90 @@
-.btnCard{
+/* =====================
+   BUTTON LAYOUT
+===================== */
+
+.mainActions{
   display:flex;
-  gap:14px;
+  flex-direction:column;
+  gap:16px;
 }
 
-.btnCard button{
-  flex:1;
-  padding:14px;
-  border-radius:14px;
-  border:none;
+.subActions{
+  display:flex;
+  gap:12px;
+}
+
+/* =====================
+   PRIMARY (AUTO ANALYZE)
+===================== */
+
+.primaryBtn{
+  width:100%;
+  padding:18px;
+  font-size:18px;
   font-weight:800;
-  font-size:15px;
-  cursor:pointer;
+  border-radius:28px;
+  border:none;
   color:white;
   letter-spacing:1px;
+  cursor:pointer;
+
+  background: linear-gradient(180deg,#ff3b3b,#b30000);
+
+  box-shadow:
+    0 0 25px rgba(255,0,0,0.45),
+    inset 0 0 10px rgba(255,255,255,0.15);
+
   transition:.25s ease;
 }
 
-/* AUTO ANALYZE */
-.btnCard button:first-child{
-  background:linear-gradient(180deg,#ff4d4d,#b30021);
+.primaryBtn:hover{
+  transform: translateY(-2px);
   box-shadow:
-    0 0 10px rgba(255,60,60,0.45),
-    0 6px 18px rgba(0,0,0,0.5);
+    0 0 35px rgba(255,0,0,0.7);
 }
 
-.btnCard button:first-child:hover{
-  transform:translateY(-2px);
-  box-shadow:
-    0 0 18px rgba(255,60,60,0.7),
-    0 8px 22px rgba(0,0,0,0.6);
+/* =====================
+   SAVE ENTRY
+===================== */
+
+.saveBtn{
+  flex:1;
+  padding:14px;
+  border-radius:16px;
+  border:1px solid rgba(0,255,170,0.4);
+  background: rgba(0,255,170,0.12);
+  color:#9fffdc;
+  font-weight:700;
+  cursor:pointer;
 }
 
-/* SAVE ENTRY */
-.btnCard button:last-child{
-  background:linear-gradient(180deg,#4da3ff,#1b4fd8);
-  box-shadow:
-    0 0 10px rgba(60,140,255,0.45),
-    0 6px 18px rgba(0,0,0,0.5);
+/* =====================
+   LOG
+===================== */
+
+.logBtn{
+  flex:1;
+  padding:14px;
+  border-radius:16px;
+  border:1px solid rgba(0,140,255,0.35);
+  background: rgba(0,140,255,0.12);
+  color:#9ed0ff;
+  font-weight:700;
+  cursor:pointer;
 }
 
-.btnCard button:last-child:hover{
-  transform:translateY(-2px);
-  box-shadow:
-    0 0 18px rgba(60,140,255,0.7),
-    0 8px 22px rgba(0,0,0,0.6);
+/* =====================
+   STATS
+===================== */
+
+.statsBtn{
+  width:100%;
+  padding:16px;
+  border-radius:22px;
+  border:none;
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(10px);
+  color:white;
+  font-weight:700;
+  cursor:pointer;
 }
