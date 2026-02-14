@@ -15,7 +15,7 @@ export function getLogs(){
 /* =======================
    保存
 ======================= */
-export function saveEntry(){
+export async function saveEntry(){
 
   // 分析前保存防止
   if(!window.lastResult){
