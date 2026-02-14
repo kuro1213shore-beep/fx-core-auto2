@@ -35,9 +35,8 @@ export async function saveEntry(){
     return;
   }
 
- const direction = confirm("LONGにしますか？\nキャンセル → SHORT")
-  ? "LONG"
-  : "SHORT";
+  const direction = await chooseDirection();
+  if(!direction) return;
   const comment = prompt("Comment (optional)") || "";
 
   const log = {
