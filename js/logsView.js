@@ -1,43 +1,91 @@
-import { getLogs } from "./logs.js";
+import { getLogs, saveLogs } from "./logs.js";
 
 const table = document.getElementById("logTable");
+let logs = getLogs();
 
-if(!table){
-  console.error("logTable not found");
+/* =========================
+   DELETE
+========================= */
+
+function deleteLog(index){
+  logs.splice(index,1);
+  saveLogs(logs);
+  render();
 }
 
-const logs = getLogs();
+/* =========================
+   SWIPE
+========================= */
 
-if(!logs || logs.length === 0){
-  table.innerHTML = "<p>No logs yet</p>";
-}else{
+function enableSwipe(row, index){
 
-  let html = `
-  <table>
-    <tr>
-      <th>Date</th>
-      <th>Mode</th>
-      <th>Dir</th>
-      <th>Score</th>
-      <th>Result</th>
-      <th>Note</th>
-    </tr>
-  `;
+  let startX = 0;
+  let currentX = 0;
+  let moved = false;
 
-  logs.forEach(l=>{
+  row.addEventListener("touchstart", e=>{
+    startX = e.touches[0].clientX;
+  });
+
+  row.addEventListener("touchmove", e=>{
+    currentX = e.touches[0].clientX;
+    const diff = currentX - startX;
+
+    if(diff < 0){
+      moved = true;
+      row.style.transform = `translateX(${diff}px)`;
+    }
+  });
+
+  row.addEventListener("touchend", ()=>{
+    const diff = currentX - startX;
+
+    if(diff < -80){
+      deleteLog(index);
+    }else{
+      row.style.transform = "translateX(0)";
+    }
+  });
+}
+
+/* =========================
+   RENDER
+========================= */
+
+function render(){
+
+  if(!logs.length){
+    table.innerHTML = "<p>No logs</p>";
+    return;
+  }
+
+  let html = "";
+
+  logs.forEach((l,i)=>{
     html += `
-      <tr>
-        <td>${l.date || "-"}</td>
-        <td>${l.mode || "-"}</td>
-        <td>${l.direction || "-"}</td>
-        <td>${l.totalScore ?? "-"}</td>
-        <td>${l.resultPips ?? "-"}</td>
-        <td>${l.comment || ""}</td>
-      </tr>
+      <div class="logRowWrap">
+        <div class="deleteBg">DELETE</div>
+        <div class="logRow" data-index="${i}">
+          <table>
+            <tr>
+              <td>${l.date}</td>
+              <td>${l.mode}</td>
+              <td>${l.direction || "-"}</td>
+              <td>${l.totalScore ?? "-"}</td>
+              <td>${l.resultPips ?? "-"}</td>
+              <td>${l.comment || ""}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
     `;
   });
 
-  html += "</table>";
-
   table.innerHTML = html;
+
+  document.querySelectorAll(".logRow").forEach(row=>{
+    enableSwipe(row, row.dataset.index);
+  });
 }
+
+render();
