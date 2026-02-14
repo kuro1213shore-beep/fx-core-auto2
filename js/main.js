@@ -81,8 +81,9 @@ async function autoAnalyze(){
     enableButtons();
 
   }catch(e){
-    console.error(e);
-    alert("API ERROR");
+  console.error("ERROR DETAILS:", e);
+  alert(e.message);
+}
   }
 }
 
