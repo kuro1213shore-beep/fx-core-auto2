@@ -1,13 +1,21 @@
 import { calcScore } from "./score.js";
 import { analyzeLogic } from "./engine.js";
 import { updateUI, setText } from "./ui.js";
-import { showLogs, showStats, saveEntry } from "./logs.js"; // ★追加
+import { showLogs, showStats, saveEntry } from "./logs.js";
+
+/* ===================== */
+/* FORMAT */
+/* ===================== */
 
 function fmt(n){
-  return (typeof n === "number" && Number.isFinite(n))
-    ? Number(n).toFixed(3)
-    : "--";
+  if (n === null || n === undefined) return "--";
+  if (typeof n !== "number" || !Number.isFinite(n)) return "--";
+  return Number(n).toFixed(3);
 }
+
+/* ===================== */
+/* AUTO ANALYZE */
+/* ===================== */
 
 async function autoAnalyze(){
 
@@ -17,9 +25,18 @@ async function autoAnalyze(){
 
     const data = await res.json();
 
+    console.log("API DATA:", data); // ★デバッグ用
+
+    /* ===== CHANGE 自動判定 ===== */
+    const change =
+      data.usdjpy?.change ??
+      data.usdjpy?.changePct ??
+      data.usdjpy?.delta ??
+      null;
+
     /* ===== DISPLAY ===== */
     setText("usdPrice", fmt(data.usdjpy?.price));
-    setText("usdChange", fmt(data.usdjpy?.change));
+    setText("usdChange", fmt(change));
     setText("usdRsi", fmt(data.usdjpy?.rsi));
 
     setText("sp", fmt(data.spPct));
@@ -40,21 +57,18 @@ async function autoAnalyze(){
     setText("mode", result.mode || "RANGE");
     updateUI(result);
 
-    /* ===== 最新分析結果を保存（ログ用） ===== */
+    /* ===== 最新分析結果保存 ===== */
     window.lastResult = {
       time: new Date().toLocaleString(),
-
       mode: result.mode || "-",
       env: result.env || "-",
       dir: result.dir || "-",
       order: result.order || "-",
-
       riskScore,
       usdScore,
       totalScore,
-
       price: data.usdjpy?.price ?? "-",
-      change: data.usdjpy?.change ?? "-",
+      change: change ?? "-",
       rsi: data.usdjpy?.rsi ?? "-"
     };
 
@@ -63,7 +77,7 @@ async function autoAnalyze(){
     const gaugeText = document.getElementById("gaugeText");
     const strengthText = document.getElementById("strengthText");
 
-    const percent = Math.round((Math.abs(totalScore) / 4) * 100);
+    const percent = Math.round((Math.abs(totalScore || 0) / 4) * 100);
     const offset = 251 - (percent / 100) * 251;
 
     if(arc) arc.style.strokeDashoffset = offset;
@@ -82,11 +96,12 @@ async function autoAnalyze(){
     return;
   }
 
-  // ===== ボタン有効化 =====
   enableActionButtons();
 }
 
-/* ===== ボタン制御 ===== */
+/* ===================== */
+/* BUTTON ENABLE */
+/* ===================== */
 
 function enableActionButtons(){
   const saveBtn = document.getElementById("saveBtn");
@@ -103,9 +118,11 @@ function enableActionButtons(){
   }
 }
 
-/* ===== HTMLから呼び出し ===== */
+/* ===================== */
+/* GLOBAL */
+/* ===================== */
 
 window.autoAnalyze = autoAnalyze;
 window.showLogs = showLogs;
 window.showStats = showStats;
-window.saveEntry = saveEntry;   // ★超重要：これがないと動かない
+window.saveEntry = saveEntry;
