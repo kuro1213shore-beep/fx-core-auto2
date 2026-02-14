@@ -21,16 +21,24 @@ function enableSwipe(row, index){
 
   let startX = 0;
   let currentX = 0;
+  let isSwiping = false;
 
   row.addEventListener("touchstart", e=>{
     startX = e.touches[0].clientX;
+    isSwiping = false;
   });
 
   row.addEventListener("touchmove", e=>{
     currentX = e.touches[0].clientX;
     const diff = currentX - startX;
 
-    if(diff < 0){
+    // 横スワイプ検知（縦スクロールを邪魔しない）
+    if(Math.abs(diff) > 10){
+      isSwiping = true;
+    }
+
+    if(isSwiping && diff < 0){
+      row.classList.add("swiping");
       row.style.transform = `translateX(${diff}px)`;
     }
   });
@@ -38,11 +46,13 @@ function enableSwipe(row, index){
   row.addEventListener("touchend", ()=>{
     const diff = currentX - startX;
 
-    if(diff < -80){
+    if(isSwiping && diff < -80){
       deleteLog(index);
-    }else{
-      row.style.transform = "translateX(0)";
+      return;
     }
+
+    row.style.transform = "translateX(0)";
+    row.classList.remove("swiping");
   });
 }
 
