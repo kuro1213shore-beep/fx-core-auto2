@@ -1,5 +1,7 @@
 import { getLogs } from "./storage.js";
 
+console.log("viewer loaded"); // ← 読み込み確認
+
 export function showLogs(){
   const logs = getLogs();
 
@@ -30,6 +32,7 @@ ${l.comment || ""}
 
 export function showStats(){
   const logs = getLogs();
+
   if(!logs.length){
     alert("No data");
     return;
