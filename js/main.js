@@ -1,13 +1,11 @@
 import { calcScore } from "./score.js";
 import { analyzeLogic } from "./engine.js";
 import { updateUI, setText } from "./ui.js";
-import { showLogs, showStats } from "./logs/viewer.js";
 import { saveEntry } from "./logs/save.js";
 
 /* ===================== */
 /* FORMAT */
 /* ===================== */
-
 function fmt(n){
   if (n === null || n === undefined) return "--";
   if (typeof n !== "number" || !Number.isFinite(n)) return "--";
@@ -15,27 +13,61 @@ function fmt(n){
 }
 
 /* ===================== */
+/* LOGS (main.js内で完結させる) */
+/*   ※ importミスで死ぬのを防ぐ */
+/* ===================== */
+const STORAGE_KEY = "fx_logs";
+
+function getLogsSafe(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    return Array.isArray(arr) ? arr : [];
+  }catch{
+    return [];
+  }
+}
+
+function showStats(){
+  const logs = getLogsSafe();
+  if(!logs.length){
+    alert("No data");
+    return;
+  }
+
+  const wins = logs.filter(l => !!l.win).length;
+
+  const totalPips = logs.reduce((sum, l) => {
+    const v = Number(l?.resultPips);
+    return sum + (Number.isFinite(v) ? v : 0);
+  }, 0);
+
+  alert(
+`Trades: ${logs.length}
+WinRate: ${Math.round((wins / logs.length) * 100)}%
+Total: ${totalPips} pips
+Avg: ${Math.round(totalPips / logs.length)} pips`
+  );
+}
+
+/* ===================== */
 /* AUTO ANALYZE */
 /* ===================== */
-
 async function autoAnalyze(){
-
   try{
     const res = await fetch("/api/market");
     if(!res.ok) throw new Error("API ERROR");
 
     const data = await res.json();
 
-    console.log("API DATA:", data); // ★デバッグ用
-
-    /* ===== CHANGE 自動判定 ===== */
+    // CHANGE 自動判定
     const change =
       data.usdjpy?.change ??
       data.usdjpy?.changePct ??
       data.usdjpy?.delta ??
       null;
 
-    /* ===== DISPLAY ===== */
+    // DISPLAY
     setText("usdPrice", fmt(data.usdjpy?.price));
     setText("usdChange", fmt(change));
     setText("usdRsi", fmt(data.usdjpy?.rsi));
@@ -46,19 +78,19 @@ async function autoAnalyze(){
     setText("dxy", fmt(data.dxyPct));
     setText("updatedAt", data.updatedAt || "--");
 
-    /* ===== SCORE ===== */
+    // SCORE
     const { riskScore, usdScore, totalScore } = calcScore(data);
 
     setText("riskScore", riskScore);
     setText("usdScore", usdScore);
     setText("totalScore", totalScore);
 
-    /* ===== LOGIC ===== */
+    // LOGIC
     const result = analyzeLogic(data, riskScore, usdScore, totalScore);
     setText("mode", result.mode || "RANGE");
     updateUI(result);
 
-    /* ===== 最新分析結果保存 ===== */
+    // 最新分析結果保存
     window.lastResult = {
       time: new Date().toLocaleString(),
       mode: result.mode || "-",
@@ -73,7 +105,7 @@ async function autoAnalyze(){
       rsi: data.usdjpy?.rsi ?? "-"
     };
 
-    /* ===== GAUGE ===== */
+    // GAUGE
     const arc = document.getElementById("gaugeArc");
     const gaugeText = document.getElementById("gaugeText");
     const strengthText = document.getElementById("strengthText");
@@ -81,7 +113,7 @@ async function autoAnalyze(){
     const percent = Math.round((Math.abs(totalScore || 0) / 4) * 100);
     const offset = 251 - (percent / 100) * 251;
 
-    if(arc) arc.style.strokeDashoffset = offset;
+    if(arc) arc.style.strokeDashoffset = String(offset);
     if(gaugeText) gaugeText.innerText = percent + "%";
 
     if(strengthText){
@@ -91,39 +123,41 @@ async function autoAnalyze(){
       else strengthText.innerText = "EXTREME";
     }
 
+    enableActionButtons();
+
   }catch(e){
     console.error(e);
     alert("API ERROR");
-    return;
   }
-
-  enableActionButtons();
 }
 
 /* ===================== */
 /* BUTTON ENABLE */
 /* ===================== */
-
 function enableActionButtons(){
   const saveBtn = document.getElementById("saveBtn");
-  const logBtn = document.getElementById("logBtn");
+  const logBtn  = document.getElementById("logBtn");
 
   if(saveBtn){
     saveBtn.classList.remove("btnDisabled");
     saveBtn.classList.add("btnEnabled");
+    // btnDisabled が pointer-events:none の場合があるので保険
+    saveBtn.style.pointerEvents = "auto";
   }
 
   if(logBtn){
     logBtn.classList.remove("btnDisabled");
     logBtn.classList.add("btnEnabled");
+    logBtn.style.pointerEvents = "auto";
   }
 }
 
 /* ===================== */
 /* GLOBAL */
 /* ===================== */
-
 window.autoAnalyze = autoAnalyze;
-window.showLogs = showLogs;
-window.showStats = showStats;
-window.saveEntry = saveEntry;
+window.saveEntry  = saveEntry;
+window.showStats  = showStats;
+
+// 目視確認用（いらなくなったら消してOK）
+console.log("main.js loaded");
