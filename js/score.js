@@ -3,6 +3,7 @@
 /* ===================================================== */
 
 import { loadConfig, getModeConfig } from "./config.js";
+import { getSettings } from "./settings.js";
 
 /* ===================================================== */
 /* 10_UTILS */
