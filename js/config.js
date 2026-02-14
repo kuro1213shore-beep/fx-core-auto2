@@ -2,21 +2,47 @@
 /* 00_CONFIG_ENTRY */
 /* ===================================================== */
 
-// localStorage key
-const LS_KEY = "FX_CORE_AUTO_CONFIG_V1";
+const LS_KEY = "FX_CORE_AUTO_CONFIG_V2";
 
 /* ===================================================== */
 /* 10_DEFAULTS */
 /* ===================================================== */
 
 const DEFAULT_CONFIG = {
-  /* ---------- engine.js 互換（ENV / DIR 判定など） ---------- */
+
+  /* ---------- 環境判定 ---------- */
   envThresholdHigh: 2,
   envThresholdLow: -2,
   usdStrongThreshold: 0,
 
-  /* ---------- モード別パラメータ ---------- */
+  /* ===================================================== */
+  /* 🔒 安全制御（超重要） */
+  /* ===================================================== */
+  risk: {
+    maxDailyLoss: 3,      // 1日の最大損失（pips単位想定）
+    maxLossStreak: 4,     // 連敗ストップ
+  },
+
+  /* ===================================================== */
+  /* 🎯 エントリー品質制御 */
+  /* ===================================================== */
+  entry: {
+    minScore: 2,          // これ未満はエントリーしない
+  },
+
+  /* ===================================================== */
+  /* 🌪 ボラティリティフィルター */
+  /* ===================================================== */
+  filters: {
+    minATR: 0.08,         // ボラ不足フィルター
+    maxATR: 0.6,          // 危険ボラ回避
+  },
+
+  /* ===================================================== */
+  /* 📈 TREND モード */
+  /* ===================================================== */
   trend: {
+
     /* 200MA 判定幅 */
     maUpper: 1.002,
     maLower: 0.998,
@@ -29,15 +55,19 @@ const DEFAULT_CONFIG = {
     rsiOverbought: 70,
     rsiOversold: 30,
 
-    /* スコア重み（trend） */
+    /* スコア重み */
     weights: {
       risk: { sp: 1, vix: 1, tlt: 1 },
       usd: { dxy: 1 },
     },
   },
 
+  /* ===================================================== */
+  /* 📉 RANGE モード */
+  /* ===================================================== */
   range: {
-    /* 200MA 判定幅（狭く） */
+
+    /* 200MA 判定幅（狭い） */
     maUpper: 1.001,
     maLower: 0.999,
 
@@ -49,7 +79,7 @@ const DEFAULT_CONFIG = {
     rsiOverbought: 65,
     rsiOversold: 35,
 
-    /* スコア重み（range） */
+    /* スコア重み */
     weights: {
       risk: { sp: 1, vix: 1, tlt: 1 },
       usd: { dxy: 1 },
@@ -65,10 +95,18 @@ function deepMerge(base, override) {
   if (!override || typeof override !== "object") return base;
 
   const out = Array.isArray(base) ? [...base] : { ...base };
+
   for (const k of Object.keys(override)) {
     const bv = base?.[k];
     const ov = override[k];
-    if (bv && typeof bv === "object" && !Array.isArray(bv) && typeof ov === "object" && !Array.isArray(ov)) {
+
+    if (
+      bv &&
+      typeof bv === "object" &&
+      !Array.isArray(bv) &&
+      typeof ov === "object" &&
+      !Array.isArray(ov)
+    ) {
       out[k] = deepMerge(bv, ov);
     } else {
       out[k] = ov;
@@ -95,7 +133,6 @@ export function loadConfig() {
   const raw = window.localStorage.getItem(LS_KEY);
   const saved = raw ? safeParse(raw) : null;
 
-  // デフォ + 保存値 をマージ（保存が欠けてても壊れない）
   return deepMerge(DEFAULT_CONFIG, saved || {});
 }
 
@@ -110,7 +147,6 @@ export function resetConfig() {
 }
 
 export function getDefaultConfig() {
-  // settings.html で初期表示に使える
   return JSON.parse(JSON.stringify(DEFAULT_CONFIG));
 }
 
@@ -119,16 +155,34 @@ export function getDefaultConfig() {
 /* ===================================================== */
 
 export function getModeConfig(mode, config = loadConfig()) {
-  // mode は "DOWNTREND"/"UPTREND"/"RANGE" を想定
-  // trend 扱い: UPTREND / DOWNTREND
   const isTrend = mode === "UPTREND" || mode === "DOWNTREND";
   return isTrend ? config.trend : config.range;
+}
+
+/* ===================================================== */
+/* 50_RISK_CONTROL_HELPERS */
+/* ===================================================== */
+
+/* 今日の損失計算 */
+export function getTodayLoss(logs) {
+  const today = new Date().toDateString();
+  return logs
+    .filter(l => new Date(l.date).toDateString() === today)
+    .reduce((sum, l) => sum + (l.resultPips || 0), 0);
+}
+
+/* 連敗数計算 */
+export function getLossStreak(logs) {
+  let streak = 0;
+  for (const log of logs) {
+    if (log.win) break;
+    streak++;
+  }
+  return streak;
 }
 
 /* ===================================================== */
 /* 90_EXPORT_COMPAT */
 /* ===================================================== */
 
-// 既存コードが「CONFIG を import」してるならそのまま使えるように。
-// ※ loadConfig() を都度使いたい場合は、各所で loadConfig() を呼んでOK
 export const CONFIG = loadConfig();
