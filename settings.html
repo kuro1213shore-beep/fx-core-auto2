@@ -21,8 +21,8 @@
   text-align:right;
 }
 </style>
-
 </head>
+
 <body>
 
 <div class="wrap">
@@ -38,39 +38,32 @@
 </div>
 
 <script type="module">
-import { loadConfig, saveConfig, resetConfig } from "./config.js";
+import { loadConfig, saveConfig, resetConfig } from "./js/config.js";
 
 const root = document.getElementById("settingsRoot");
 let config = loadConfig();
 
-/* =============================
-   INPUT FIELD
-============================= */
+/* ========= INPUT ========= */
 
 function numberInput(label, path, value){
   return `
     <div class="row">
       <span>${label}</span>
-      <input
-        type="number"
-        step="0.01"
+      <input type="number" step="0.01"
         data-path="${path}"
-        value="${value ?? ""}"
-        class="settingInput"
-      />
+        value="${value}"
+        class="settingInput" />
     </div>
   `;
 }
 
-/* =============================
-   BUILD SECTION
-============================= */
+/* ========= SECTION ========= */
 
 function buildSection(title, obj, prefix){
   let html = `<div class="card"><h3>${title}</h3>`;
 
   for(const key in obj){
-    if(typeof obj[key] === "object" && obj[key] !== null){
+    if(typeof obj[key] === "object"){
       html += buildSection(key, obj[key], prefix + "." + key);
     }else{
       const label = key.replace(/([A-Z])/g," $1");
@@ -82,56 +75,49 @@ function buildSection(title, obj, prefix){
   return html;
 }
 
-/* =============================
-   RENDER
-============================= */
+/* ========= RENDER ========= */
 
-function render(){
-  root.innerHTML =
-    buildSection("TREND", config.trend, "trend") +
-    buildSection("RANGE", config.range, "range");
-}
+root.innerHTML =
+  buildSection("GLOBAL", {
+    envThresholdHigh: config.envThresholdHigh,
+    envThresholdLow: config.envThresholdLow,
+    usdStrongThreshold: config.usdStrongThreshold
+  }, "") +
 
-render();
+  buildSection("TREND", config.trend, "trend") +
+  buildSection("RANGE", config.range, "range");
 
-/* =============================
-   SAVE
-============================= */
+/* ========= SAVE ========= */
 
 window.saveSettings = function(){
 
-  const inputs = document.querySelectorAll(".settingInput");
-
-  inputs.forEach(input=>{
+  document.querySelectorAll(".settingInput").forEach(input=>{
     const path = input.dataset.path.split(".");
     let ref = config;
+
+    if(path[0] === ""){
+      // global設定
+      ref[path[1]] = parseFloat(input.value);
+      return;
+    }
 
     for(let i=0;i<path.length-1;i++){
       ref = ref[path[i]];
     }
 
-    const val = parseFloat(input.value);
-
-    if(!isNaN(val)){
-      ref[path[path.length-1]] = val;
-    }
+    ref[path[path.length-1]] = parseFloat(input.value);
   });
 
   saveConfig(config);
-
   alert("Saved ✔");
 };
 
-/* =============================
-   RESET
-============================= */
+/* ========= RESET ========= */
 
 window.resetSettings = function(){
-  if(confirm("Reset settings to default?")){
-    resetConfig();   // ← 正しいリセット方法
-    config = loadConfig();
-    render();
-    alert("Reset ✔");
+  if(confirm("Reset to default?")){
+    resetConfig();
+    location.reload();
   }
 };
 
