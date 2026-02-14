@@ -1,4 +1,4 @@
-import { getLogs, saveLogs } from "./logs.js";
+import { getLogs, deleteLog as deleteLogFromStorage } from "./logs.js";
 
 const table = document.getElementById("logTable");
 let logs = getLogs();
@@ -8,8 +8,8 @@ let logs = getLogs();
 ========================= */
 
 function deleteLog(index){
-  logs.splice(index,1);
-  saveLogs(logs);
+  deleteLogFromStorage(index);
+  logs = getLogs();
   render();
 }
 
@@ -21,7 +21,6 @@ function enableSwipe(row, index){
 
   let startX = 0;
   let currentX = 0;
-  let moved = false;
 
   row.addEventListener("touchstart", e=>{
     startX = e.touches[0].clientX;
@@ -32,7 +31,6 @@ function enableSwipe(row, index){
     const diff = currentX - startX;
 
     if(diff < 0){
-      moved = true;
       row.style.transform = `translateX(${diff}px)`;
     }
   });
@@ -84,7 +82,7 @@ function render(){
   table.innerHTML = html;
 
   document.querySelectorAll(".logRow").forEach(row=>{
-    enableSwipe(row, row.dataset.index);
+    enableSwipe(row, Number(row.dataset.index));
   });
 }
 
