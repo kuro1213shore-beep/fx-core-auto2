@@ -6,11 +6,20 @@
   --text:#eaf2ff;
 }
 
+/* RESET */
+html, body{
+  margin:0;
+  padding:0;
+  background:#0a0f1c;
+}
+
 /* BASE */
 body{
-  margin:0;
   background:linear-gradient(160deg,var(--bg1),var(--bg2));
   color:var(--text);
   font-family:system-ui,-apple-system,sans-serif;
   text-align:center;
+
+  /* iPhone余白対策 */
+  min-height:100vh;
 }
