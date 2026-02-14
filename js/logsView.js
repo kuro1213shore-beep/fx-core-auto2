@@ -40,6 +40,10 @@ function enableSwipe(row, index){
     if(isSwiping && diff < 0){
       row.classList.add("swiping");
       row.style.transform = `translateX(${diff}px)`;
+
+　　　// 背景表示
+　　　const bg = row.previousElementSibling;
+　　　if(bg) bg.style.opacity = 1;
     }
   });
 
