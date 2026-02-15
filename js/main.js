@@ -1,12 +1,5 @@
 console.log("main loaded");
 
-/* ========= IMPORT ========= */
-
-import { calcScore } from "./score.js";
-import { analyzeLogic } from "./engine.js";
-import { updateUI, setText } from "./ui.js";
-import { saveEntry } from "./logs/save.js";
-
 /* ========= FORMAT ========= */
 
 function fmt(n){
@@ -15,59 +8,56 @@ function fmt(n){
   return Number(n).toFixed(3);
 }
 
-/* ========= AUTO ANALYZE ========= */
+/* ========= API ========= */
 
 async function autoAnalyze(){
+
   try{
+
+    console.log("fetch start");
+
     const res = await fetch("https://fx-core-auto.vercel.app/api/market");
 
-    if(!res.ok) throw new Error("API ERROR");
+    console.log("status:", res.status);
+
+    if(!res.ok){
+      alert("API STATUS ERROR: " + res.status);
+      return;
+    }
 
     const data = await res.json();
-    console.log("API:", data);
 
-    const change =
-      data.usdjpy?.change ??
-      data.usdjpy?.changePct ??
-      data.usdjpy?.delta ??
-      null;
+    console.log("DATA:", data);
 
-    setText("usdPrice", fmt(data.usdjpy?.price));
-    setText("usdChange", fmt(change));
-    setText("usdRsi", fmt(data.usdjpy?.rsi));
+    // ===== 表示 =====
 
-    setText("sp", fmt(data.spPct));
-    setText("vix", fmt(data.vixPct));
-    setText("tlt", fmt(data.tltPct));
-    setText("dxy", fmt(data.dxyPct));
-    setText("updatedAt", data.updatedAt || "--");
+    document.getElementById("usdPrice").innerText =
+      fmt(data.usdjpy?.price);
 
-    const { riskScore, usdScore, totalScore } = calcScore(data);
+    document.getElementById("usdChange").innerText =
+      fmt(data.usdjpy?.changePct);
 
-    setText("riskScore", riskScore);
-    setText("usdScore", usdScore);
-    setText("totalScore", totalScore);
+    document.getElementById("usdRsi").innerText =
+      fmt(data.usdjpy?.rsi);
 
-    const result = analyzeLogic(data, riskScore, usdScore, totalScore);
-    updateUI(result);
+    // ===== ダミースコア表示 =====
+    // （まず動作確認優先）
 
-    const arc = document.getElementById("gaugeArc");
-    const gaugeText = document.getElementById("gaugeText");
+    document.getElementById("riskScore").innerText = "OK";
+    document.getElementById("usdScore").innerText = "OK";
+    document.getElementById("totalScore").innerText = "OK";
 
-    const percent = Math.round((Math.abs(totalScore || 0) / 4) * 100);
-    const offset = 251 - (percent / 100) * 251;
+    document.getElementById("gaugeText").innerText = "100%";
 
-    if(arc) arc.style.strokeDashoffset = offset;
-    if(gaugeText) gaugeText.innerText = percent + "%";
+    alert("SUCCESS");
 
   }catch(e){
+
     console.error("ERROR:", e);
-    alert(e.message);
+    alert("LOAD FAILED");
+
   }
 }
 
-/* ========= GLOBAL ========= */
-
+/* 🔥 ボタンから呼べるようにする */
 window.autoAnalyze = autoAnalyze;
-window.saveEntry = saveEntry;
-window.showStats = () => location.href="logs.html";
