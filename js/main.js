@@ -1,63 +1,109 @@
 console.log("main loaded");
 
-/* ========= FORMAT ========= */
+/* ========= IMPORT ========= */
+import { calcScore } from "./score.js";
+import { analyzeLogic } from "./engine.js";
+import { updateUI, setText } from "./ui.js";
+import { saveEntry } from "./logs/save.js";
 
+/* ========= FORMAT ========= */
 function fmt(n){
   if (n === null || n === undefined) return "--";
   if (typeof n !== "number" || !Number.isFinite(n)) return "--";
   return Number(n).toFixed(3);
 }
 
-/* ========= API ========= */
-
+/* ========= AUTO ANALYZE ========= */
 async function autoAnalyze(){
-
   try{
-
-    console.log("fetch start");
 
     const res = await fetch("https://fx-core-auto.vercel.app/api/market");
 
-    console.log("status:", res.status);
-
     if(!res.ok){
-      alert("API STATUS ERROR: " + res.status);
+      alert("API通信失敗");
       return;
     }
 
     const data = await res.json();
+    console.log("API:", data);
 
-    console.log("DATA:", data);
+    const change =
+      data.usdjpy?.change ??
+      data.usdjpy?.changePct ??
+      data.usdjpy?.delta ??
+      null;
 
-    // ===== 表示 =====
+    /* ===== DISPLAY ===== */
 
-    document.getElementById("usdPrice").innerText =
-      fmt(data.usdjpy?.price);
+    setText("usdPrice", fmt(data.usdjpy?.price));
+    setText("usdChange", fmt(change));
+    setText("usdRsi", fmt(data.usdjpy?.rsi));
 
-    document.getElementById("usdChange").innerText =
-      fmt(data.usdjpy?.changePct);
+    setText("sp", fmt(data.spPct));
+    setText("vix", fmt(data.vixPct));
+    setText("tlt", fmt(data.tltPct));
+    setText("dxy", fmt(data.dxyPct));
+    setText("updatedAt", data.updatedAt || "--");
 
-    document.getElementById("usdRsi").innerText =
-      fmt(data.usdjpy?.rsi);
+    /* ===== SCORE ===== */
 
-    // ===== ダミースコア表示 =====
-    // （まず動作確認優先）
+    const { riskScore, usdScore, totalScore } = calcScore(data);
 
-    document.getElementById("riskScore").innerText = "OK";
-    document.getElementById("usdScore").innerText = "OK";
-    document.getElementById("totalScore").innerText = "OK";
+    setText("riskScore", riskScore);
+    setText("usdScore", usdScore);
+    setText("totalScore", totalScore);
 
-    document.getElementById("gaugeText").innerText = "100%";
+    /* ===== LOGIC ===== */
 
-    alert("SUCCESS");
+    const result = analyzeLogic(data, riskScore, usdScore, totalScore);
+
+    setText("mode", result.mode);
+    updateUI(result);
+
+    /* ===== GAUGE ===== */
+
+    const arc = document.getElementById("gaugeArc");
+    const gaugeText = document.getElementById("gaugeText");
+    const strengthText = document.getElementById("strengthText");
+
+    const percent = Math.round((Math.abs(totalScore || 0) / 4) * 100);
+    const offset = 251 - (percent / 100) * 251;
+
+    if(arc) arc.style.strokeDashoffset = offset;
+    if(gaugeText) gaugeText.innerText = percent + "%";
+
+    if(strengthText){
+      if(percent < 30) strengthText.innerText = "WEAK";
+      else if(percent < 60) strengthText.innerText = "NORMAL";
+      else if(percent < 80) strengthText.innerText = "STRONG";
+      else strengthText.innerText = "EXTREME";
+    }
+
+    enableButtons();
 
   }catch(e){
-
-    console.error("ERROR:", e);
-    alert("LOAD FAILED");
-
+    console.error(e);
+    alert("読み込みエラー");
   }
 }
 
-/* 🔥 ボタンから呼べるようにする */
+/* ========= BUTTON ENABLE ========= */
+function enableButtons(){
+  const saveBtn = document.getElementById("saveBtn");
+  const logBtn = document.getElementById("logBtn");
+
+  if(saveBtn){
+    saveBtn.classList.remove("btnDisabled");
+    saveBtn.classList.add("btnEnabled");
+  }
+
+  if(logBtn){
+    logBtn.classList.remove("btnDisabled");
+    logBtn.classList.add("btnEnabled");
+  }
+}
+
+/* ========= GLOBAL ========= */
 window.autoAnalyze = autoAnalyze;
+window.saveEntry = saveEntry;
+window.showStats = () => location.href="logs.html";
