@@ -1,36 +1,78 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FX CORE AUTO</title>
-  <link rel="stylesheet" href="./css/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FX CORE AUTO</title>
 </head>
 
 <body>
 
 <h1>FX CORE AUTO</h1>
 
-<div id="gaugeText">0%</div>
+<h2 id="gauge">0%</h2>
 
-<button onclick="autoAnalyze()" class="primaryBtn">
-  AUTO ANALYZE
-</button>
+<button onclick="autoAnalyze()">AUTO ANALYZE</button>
 
-<div>
-  <p>USDJPY: <span id="usdPrice">--</span></p>
-  <p>CHANGE: <span id="usdChange">--</span></p>
-  <p>RSI: <span id="usdRsi">--</span></p>
-</div>
+<p>USDJPY: <span id="price">--</span></p>
+<p>CHANGE: <span id="change">--</span></p>
+<p>RSI: <span id="rsi">--</span></p>
 
-<div>
-  <p>RISK: <span id="riskScore">--</span></p>
-  <p>USD: <span id="usdScore">--</span></p>
-  <p>TOTAL: <span id="totalScore">--</span></p>
-</div>
+<p>RISK: <span id="risk">--</span></p>
+<p>USD: <span id="usd">--</span></p>
+<p>TOTAL: <span id="total">--</span></p>
 
-<!-- 🔥 超重要：JS接続 -->
-<script type="module" src="./js/main.js"></script>
+<script>
+
+function fmt(n){
+  if(n == null) return "--";
+  return Number(n).toFixed(3);
+}
+
+async function autoAnalyze(){
+
+  try{
+
+    const res = await fetch("https://fx-core-auto.vercel.app/api/market");
+
+    if(!res.ok) throw new Error("API error");
+
+    const d = await res.json();
+
+    console.log(d);
+
+    const change =
+      d.usdjpy.change ??
+      d.usdjpy.changePct ??
+      0;
+
+    document.getElementById("price").innerText = fmt(d.usdjpy.price);
+    document.getElementById("change").innerText = fmt(change);
+    document.getElementById("rsi").innerText = fmt(d.usdjpy.rsi);
+
+    const risk =
+      (d.vixPct < 0 ? 1 : -1) +
+      (d.spPct > 0 ? 1 : -1) +
+      (d.tltPct < 0 ? 1 : -1);
+
+    const usd = d.dxyPct > 0 ? 1 : -1;
+
+    const total = risk + usd;
+
+    document.getElementById("risk").innerText = risk;
+    document.getElementById("usd").innerText = usd;
+    document.getElementById("total").innerText = total;
+
+    const percent = Math.min(100, Math.abs(total) * 25);
+    document.getElementById("gauge").innerText = percent + "%";
+
+  }catch(e){
+    alert("API取得失敗");
+    console.error(e);
+  }
+}
+
+</script>
 
 </body>
 </html>
