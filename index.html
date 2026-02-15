@@ -1,96 +1,36 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FX CORE AUTO</title>
-
-  <link rel="stylesheet" href="./css/base.css">
-  <link rel="stylesheet" href="./css/layout.css">
-  <link rel="stylesheet" href="./css/cards.css">
-  <link rel="stylesheet" href="./css/buttons.css">
-  <link rel="stylesheet" href="./css/gauge.css">
-  <link rel="stylesheet" href="./css/header.css">
-  <link rel="stylesheet" href="./css/market.css">
-  <link rel="stylesheet" href="./css/utilities.css">
+  <link rel="stylesheet" href="./css/style.css">
 </head>
 
 <body>
-  <div class="header">
-    <h1>FX CORE AUTO</h1>
-    <button class="settingsBtn" onclick="location.href='settings.html'"></button>
-  </div>
 
-  <div class="wrap">
+<h1>FX CORE AUTO</h1>
 
-    <div class="card">
-      <div class="row"><span>USDJPY</span><span id="usdPrice">--</span></div>
-      <div class="row"><span>CHANGE</span><span id="usdChange">--</span></div>
-      <div class="row"><span>RSI</span><span id="usdRsi">--</span></div>
-      <div class="muted" id="updatedAt">--</div>
-    </div>
+<div id="gaugeText">0%</div>
 
-    <div class="card marketGrid">
-      <div class="miniCard"><div>SPX</div><div id="sp">--</div></div>
-      <div class="miniCard"><div>VIX</div><div id="vix">--</div></div>
-      <div class="miniCard"><div>TLT</div><div id="tlt">--</div></div>
-      <div class="miniCard"><div>DXY</div><div id="dxy">--</div></div>
-    </div>
+<button onclick="autoAnalyze()" class="primaryBtn">
+  AUTO ANALYZE
+</button>
 
-    <div class="card">
-      <div class="row"><span>MARKET MODE</span><span id="mode">--</span></div>
-    </div>
+<div>
+  <p>USDJPY: <span id="usdPrice">--</span></p>
+  <p>CHANGE: <span id="usdChange">--</span></p>
+  <p>RSI: <span id="usdRsi">--</span></p>
+</div>
 
-    <div class="card">
-      <div class="row"><span>ENV</span><span id="env">--</span></div>
-      <div class="row"><span>DIR</span><span id="dir">--</span></div>
-      <div class="row"><span>RSI SIGNAL</span><span id="rsiSignal">--</span></div>
-      <div class="row"><span>ORDER</span><span id="order">--</span></div>
-    </div>
+<div>
+  <p>RISK: <span id="riskScore">--</span></p>
+  <p>USD: <span id="usdScore">--</span></p>
+  <p>TOTAL: <span id="totalScore">--</span></p>
+</div>
 
-    <div class="card">
-      <div class="scoreBoard">
-        <div class="row"><span>RISK SCORE</span><span id="riskScore">--</span></div>
-        <div class="row"><span>USD SCORE</span><span id="usdScore">--</span></div>
-        <div class="row"><span>TOTAL SCORE</span><span id="totalScore">--</span></div>
-      </div>
+<!-- 🔥 超重要：JS接続 -->
+<script type="module" src="./js/main.js"></script>
 
-      <div class="gaugeArea">
-        <svg viewBox="0 0 200 120" class="gaugeSvg">
-          <path
-            d="M20 100 A80 80 0 0 1 180 100"
-            stroke="currentColor"
-            stroke-width="16"
-            fill="none"
-            stroke-linecap="round"
-            id="gaugeArc"
-            stroke-dasharray="251"
-            stroke-dashoffset="251"
-          />
-        </svg>
-
-        <div class="gaugeText" id="gaugeText">0%</div>
-        <div class="strengthText" id="strengthText">--</div>
-      </div>
-    </div>
-
-    <div class="card btnCard mainActions">
-      <button class="primaryBtn" onclick="autoAnalyze()">AUTO ANALYZE</button>
-
-      <div class="subActions">
-        <button id="saveBtn" class="saveBtn btnDisabled" onclick="saveEntry()">✔ SAVE ENTRY</button>
-        <button id="logBtn" class="logBtn btnDisabled" onclick="location.href='logs.html'">📄 LOG</button>
-      </div>
-
-      <button class="statsBtn" onclick="showStats()">📊 STATS</button>
-    </div>
-
-    <div class="card">
-      <iframe src="chart.html" loading="lazy"></iframe>
-    </div>
-
-  </div>
-
-  <script type="module" src="./js/main.js"></script>
 </body>
 </html>
